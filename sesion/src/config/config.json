@@ -1,0 +1,33 @@
+{
+
+  "server": {
+    "port": 3000    
+  },
+
+  "session": {
+    "secret": "clave_secreta",
+    "resave": false,
+    "saveUninitialized": false,
+    "cookie": {
+      "secure": false,
+      "maxAge": 1800000
+    }
+  },
+
+  "database": {
+    "user": "postgres",
+    "password": "postgres",
+    "host": "localhost",
+    "port": 5432,
+    "database": "webII_project"
+  },
+
+  "poolOptions": {
+    "max": 10,
+    "ssl": false,
+    "idleTimeoutMillis": 300000,
+    "connectionTimeoutMillis": 50000,
+    "maxUses": 7500
+  }
+}
+

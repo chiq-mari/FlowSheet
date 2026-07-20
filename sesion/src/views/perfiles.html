@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seleccionar Perfil</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .profiles-container { max-width: 400px; margin: 100px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
+    .btn-profile { display: block; width: 100%; padding: 12px; margin: 10px 0; font-size: 16px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+    .btn-profile:hover { background-color: #0056b3; }
+    .welcome-msg { font-size: 18px; margin-bottom: 20px; color: #333; }
+    .success-box { padding: 15px; background-color: #d4edda; color: #155724; border-radius: 4px; margin-top: 20px; display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="profiles-container">
+    <div class="welcome-msg">Hola <strong id="userSpan"></strong>, selecciona tu perfil de ingreso:</div>
+    
+    <div id="buttonsZone"></div>
+
+    <div id="finalResponse" class="success-box"></div>
+  </div>
+
+  <script>
+    const buttonsZone = document.getElementById('buttonsZone');
+    const finalResponse = document.getElementById('finalResponse');
+
+    // Función que se ejecuta al cargar la pantalla
+    async function cargarPerfiles() {
+      try {
+        // Le pedimos los datos de manera segura a la sesión del servidor
+        const response = await fetch('/api/auth/current-user');
+        
+        // Si el servidor dice que no hay sesión, lo expulsamos al login de una vez
+        if (!response.ok) {
+          window.location.href = '/';
+          return;
+        }
+
+        const data = await response.json();
+        
+        // Insertamos el nombre del usuario directamente en el HTML
+        document.getElementById('userSpan').textContent = data.person_first_na;
+        const profiles = data.user_profiles;
+
+        // Creamos los botones dinámicos basados en la respuesta del servidor
+        profiles.forEach(profile => {
+          const btn = document.createElement('button');
+          btn.className = 'btn-profile';
+          btn.textContent = profile.profile_na;
+
+          // Evento al hacer clic en el perfil elegido
+          btn.addEventListener('click', async () => {
+            try {
+              const resSelect = await fetch('/api/auth/select-profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ profileName: profile.profile_na })
+              });
+
+              const dataSelect = await resSelect.json();
+
+              if (resSelect.ok) {
+                buttonsZone.style.display = 'none';
+                finalResponse.textContent = dataSelect.message;
+                finalResponse.style.display = 'block';
+              } else {
+                alert(dataSelect.message || 'Error al seleccionar perfil');
+              }
+            } catch (error) {
+              alert('Error de conexión con el servidor.');
+            }
+          });
+
+          buttonsZone.appendChild(btn);
+        });
+
+      } catch (error) {
+        console.error('Error al verificar sesión:', error);
+        window.location.href = '/';
+      }
+    }
+
+    // Arrancamos la carga del flujo de seguridad
+    cargarPerfiles();
+  </script>
+</body>
+</html>

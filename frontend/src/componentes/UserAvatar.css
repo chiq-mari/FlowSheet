@@ -1,0 +1,13 @@
+/* src/componentes/UserAvatar.css */
+.user-avatar-circle {
+  border-radius: 50%;
+  background-color: #93c5fd;
+  color: #1e3a8a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+  user-select: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

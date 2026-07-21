@@ -1,0 +1,180 @@
+/* src/components/ProfileSelector.css */
+
+.profile-selector-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  position: relative;
+}
+
+.selector-header {
+  margin-bottom: 20px;
+}
+
+.selector-logo {
+  max-width: 190px;
+  height: auto;
+}
+
+/* Tarjeta Principal */
+.selector-card {
+  width: 100%;
+  max-width: 460px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 25px 40px -10px rgba(0, 0, 0, 0.4);
+}
+
+/* Encabezado Oscuro dentro de la Tarjeta */
+.card-top-bar {
+  background-color: #27354a;
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #94a3b8;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.user-info h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.user-info p {
+  margin: 4px 0 0 0;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+/* Cuerpo Blanco de la Tarjeta */
+.card-body {
+  background-color: #ffffff;
+  padding: 24px;
+}
+
+.profiles-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Opción de Perfil */
+.profile-card-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease-in-out;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.profile-card-item:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+.profile-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background-color: #f8fafc;
+  border: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  margin-right: 14px;
+  flex-shrink: 0;
+}
+
+.profile-text-box {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.profile-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.profile-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+}
+
+.profile-card-item:hover .profile-arrow {
+  color: #64748b;
+}
+
+/* Enlace/Botón Cambiar Usuario */
+.change-user-link {
+  display: block;
+  width: 100%;
+  margin-top: 18px;
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-align: center;
+  padding: 6px 0;
+  transition: color 0.2s;
+}
+
+.change-user-link:hover {
+  color: #0f172a;
+}
+
+/* Footer & Help Button */
+.selector-footer {
+  margin-top: 28px;
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.help-button {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #334155;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}

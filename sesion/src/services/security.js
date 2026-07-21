@@ -146,64 +146,26 @@ class Security {
 
 
     /**
-     * Método ejecutor/verificador que bloquea o da paso libre a una acción.
-     */
+ * Invocador por reflexión (asume que la autorización previa fue aprobada en la aduana)
+ */
+async exeMethod(subSystem, object, method, executionParams = {}, userData = {}) {
+    // 1. Verificamos que la clase/componente exista en el registro
+    const ClaseComponente = this.componentes[object];
 
-
-    exeMethod(subSystem, object, method, profileId, executionParams = {}) {
-        // 1. Validar contra el mapa en memoria
-        const autorizado = this.getPermissionMethod(subSystem, object, method, profileId);
-        
-        if (!autorizado) {
-            throw new Error(`Acceso denegado: El perfil ${profileId} no puede ejecutar [${method}] en [${subSystem}/${object}].`);
-        }
-        
-        // 2. CHEQUEAMOS SI EL OBJETO EXISTE EN NUESTRA PROPIEDAD INTERNA
-        const ClaseComponente = this.componentes[object];  //// usar mapa con instancias
-
-        if (!ClaseComponente) {
-            throw new Error(`El objeto [${object}] no está registrado en el motor de seguridad.`);
-        }
-
-        // 3. Como ya sabemos que existe, instanciamos en frío (sin async ni await)
-        const instanciaClase = new ClaseComponente();
-        
-        // 4. Verificación reflexiva del método y ejecución
-        if (typeof instanciaClase[method] === 'function') {
-            return instanciaClase[method](executionParams);
-        } else {
-            throw new Error(`Error de sistema: El método [${method}] no existe físicamente en el componente [${object}].`);
-        }
+    if (!ClaseComponente) {
+        throw new Error(`El objeto [${object}] no está registrado en el motor de seguridad.`);
     }
 
-
-    /* ????? OPTION 1  // o  usar los imports cada vez- pero eso implicaria un async 
-    exeMethod(subSystem, object, method, profileId, executionParams = {}) {
-        // 1. Validar contra el mapa en memoria
-        const autorizado = this.getPermissionMethod(subSystem, object, method, profileId);
-        
-        if (!autorizado) {
-            throw new Error(`Acceso denegado: El perfil ${profileId} no puede ejecutar [${method}] en [${subSystem}/${object}].`);
-        }
-        
-        // 2. Si está autorizado, aplicamos REFLEXIÓN según el objeto solicitado
-        console.log(`[SEGURIDAD]: Control superado. Ejecutando por reflexión de forma segura...`);
-
-        if (object === 'Calculadora') {
-            const instanciaClase = new Calculadora();
-            
-            // Verificación reflexiva: ¿Existe la función en la instancia?
-            if (typeof instanciaClase[method] === 'function') {
-                // Invocación dinámica/reflexiva de la función pasándole los parámetros
-                return instanciaClase[method](executionParams);
-            } else {
-                throw new Error(`Error de sistema: El método [${method}] no existe físicamente en el componente [${object}].`);
-            }
-        }
-
-        // Si tienes más clases en el futuro, añadirías sus 'else if' aquí...
-        throw new Error(`El objeto [${object}] no está registrado en el motor de reflexión del backend.`);
-    }*/
+    // 2. Instanciamos la clase del componente
+    const instanciaClase = new ClaseComponente();
+    
+    // 3. Invocación reflexiva pasando parámetros de ejecución + datos del usuario
+    if (typeof instanciaClase[method] === 'function') {
+        return await instanciaClase[method](executionParams, userData );
+    } else {
+        throw new Error(`Error de sistema: El método [${method}] no existe físicamente en el componente [${object}].`);
+    }
+}
 }
     
 

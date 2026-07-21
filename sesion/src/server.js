@@ -90,12 +90,30 @@ app.post('/toProcess', async (req, res) => {
             // 2. Extraemos ÚNICAMENTE lo necesario para ejecutar código por reflexión
             const { subSystem, object, method, executionParams = {} } = req.body;  //pone exeParams default
 
+            // 🔍 1. VALIDACIÓN DEL PERMISO DE MÉTODO EN LA ADUANA CENTRAL
+            const tienePermisoMetodo = global.global_security.getPermissionMethod(
+                subSystem, 
+                object, 
+                method, 
+                profileId
+            );
+
+            if (!tienePermisoMetodo) {
+                return res.status(403).json({
+                    status: "Acceso Denegado",
+                    message: `El perfil [${profileId}] no tiene permisos para ejecutar [${method}] en [${subSystem}/${object}].`
+                });
+            }
+
+            // 🚀 2. SI TIENE PERMISO, EJECUTAMOS POR REFLEXIÓN
+            // InyectamosuserData para dar trazabilidad a la lógica de negocio
+
             const resultadoEjecucion = await global.global_security.exeMethod(
                 subSystem, 
                 object, 
                 method, 
-                profileId, 
-                executionParams
+                executionParams,
+                userData
             );
 
             return res.json({

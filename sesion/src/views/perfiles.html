@@ -42,14 +42,14 @@
         const data = await response.json();
         
         // Insertamos el nombre del usuario directamente en el HTML
-        document.getElementById('userSpan').textContent = data.person_first_na;
+        document.getElementById('userSpan').textContent = data.person_na;
         const profiles = data.user_profiles;
 
         // Creamos los botones dinámicos basados en la respuesta del servidor
         profiles.forEach(profile => {
           const btn = document.createElement('button');
           btn.className = 'btn-profile';
-          btn.textContent = profile.profile_na;
+          btn.textContent = profile.profile_de;
 
           // Evento al hacer clic en el perfil elegido
           btn.addEventListener('click', async () => {
@@ -57,7 +57,7 @@
               const resSelect = await fetch('/api/auth/select-profile', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ profileName: profile.profile_na })
+                body: JSON.stringify({ profileName: profile.profile_de })
               });
 
               const dataSelect = await resSelect.json();

@@ -18,7 +18,7 @@ class Security {
 
     /**
      * Carga todos los permisos de métodos desde la BD a la caché en memoria.
-     * Estructura de la Llave: sub_system_na + object_na + method_na + profile_id
+     * Estructura de la Llave: sub_system_de + object_de + method_de + profile_id
      */
     async loadPermissionMethod() {
         try {
@@ -30,7 +30,7 @@ class Security {
 
             rows.forEach(row => {
                 // Creamos el String clave unificado que sugirió el profesor
-                const key = `${row.sub_system_na}_`+`${row.object_na}_`+`${row.method_na}_`+`${row.profile_id}`;
+                const key = `${row.sub_system_de}_`+`${row.object_de}_`+`${row.method_de}_`+`${row.profile_id}`;
                 this.permissionMethodMap.set(key, true);
             });
 
@@ -43,7 +43,7 @@ class Security {
 
     /**
      * Carga todos los permisos de opciones de menú desde la BD a la caché.
-     * Estructura de la Llave: sub_system_na + menu_na + profile_id
+     * Estructura de la Llave: sub_system_de + option_de + profile_id
      */
     async loadPermissionMenu() {
         try {
@@ -53,7 +53,7 @@ class Security {
             this.permissionMenuMap.clear();
 
             rows.forEach(row => {
-                const key = `${row.sub_system_na}_`+`${row.menu_na}_`+`${row.profile_id}`;
+                const key = `${row.sub_system_de}_`+`${row.option_de}_`+`${row.profile_id}`;
                 this.permissionMenuMap.set(key, true);
             });
 

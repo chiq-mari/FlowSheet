@@ -43,7 +43,7 @@ router.get('/current-user', (req, res) => {
         // Le enviamos al front únicamente lo que necesita para renderizar la vista
         return res.json({
             success: true,
-            person_first_na: userData.person_first_na,
+            person_na: userData.person_na,
             user_profiles: userData.user_profiles
         });
     } else {
@@ -63,14 +63,14 @@ router.post('/select-profile', (req, res) => {
     const userData = global.global_session.getDataSession(req);
 
     // Buscamos el objeto de perfil completo para extraer tanto el ID como el Nombre
-    const matchedProfile = userData.user_profiles.find(p => p.profile_na === profileName);
+    const matchedProfile = userData.user_profiles.find(p => p.profile_de === profileName);
 
     if (matchedProfile) {
         // CORRECCIÓN: Guardamos tanto el ID como el Nombre en la sesión para conocer el perfil en /toProcess
         req.session.activeProfileId = matchedProfile.profile_id;
 
         return res.json({
-            message: `¡Bienvenido, ${userData.person_first_na}! Ingresaste correctamente como [${profileName}].`
+            message: `¡Bienvenido, ${userData.person_na}! Ingresaste correctamente como [${profileName}].`
         });
     } else {
         return res.status(403).json({ message: "No tienes autorización para usar este perfil." });

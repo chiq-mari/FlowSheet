@@ -19,7 +19,7 @@
     "password": "postgres",
     "host": "localhost",
     "port": 5432,
-    "database": "webII_project"
+    "database": "flowsheet"
   },
 
   "poolOptions": {

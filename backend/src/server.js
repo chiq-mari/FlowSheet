@@ -6,6 +6,7 @@ import config from './config/config.json' with { type: 'json' };
 import { DBComponent } from './config/dbComponent.js';
 import Security from './services/security.js';
 import authRoutes from './routes/authRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js'; // Importa el nuevo router
 
 //VARIABLES GLOBALES
 global.global_db = new DBComponent();
@@ -46,6 +47,8 @@ app.use((req, res, next) => {
 
 // 🔒 Vinculamos AUTENTICACION
 app.use('/api/auth', authRoutes);
+// Montamos el router del Dashboard bajo el prefijo /api/dashboard
+app.use('/api/dashboard', dashboardRoutes);
 
 // seguridad
 

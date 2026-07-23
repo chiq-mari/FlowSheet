@@ -1,0 +1,53 @@
+/* src/pages/DashboardLayout.css */
+
+.dashboard-layout {
+  min-height: 100vh;
+  background-color: #0c101d;
+  color: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.dashboard-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.dashboard-main {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  background-color: #0c101d;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Botón flotante de Ayuda */
+.floating-help-btn {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background-color: #1a2336;
+  color: #94a3b8;
+  border: 1px solid #2b3954;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.floating-help-btn:hover {
+  background-color: #3b82f6;
+  color: #ffffff;
+  border-color: #3b82f6;
+}

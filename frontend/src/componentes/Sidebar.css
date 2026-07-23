@@ -1,0 +1,134 @@
+/* src/componentes/Sidebar.css */
+
+.sidebar-container {
+  width: 15rem; /* 240px */
+  background-color: #0c101d;
+  color: #cbd5e1;
+  border-right: 1px solid #1a2235;
+  height: calc(100vh - 4rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.75rem;
+  flex-shrink: 0;
+  user-select: none;
+  overflow-y: auto;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sidebar-root-list, .sidebar-sub-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* Sidebar Item Base */
+.sidebar-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #94a3b8;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.sidebar-item:hover {
+  background-color: #172136;
+  color: #ffffff;
+}
+
+.item-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sidebar-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  color: #64748b;
+  transition: color 0.2s ease;
+}
+
+.sidebar-item:hover .sidebar-icon {
+  color: #3b82f6;
+}
+
+.item-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chevron-icon {
+  width: 1rem;
+  height: 1rem;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+/* Estado Activo en Sidebar */
+.sidebar-item.active {
+  background: linear-gradient(90deg, #1d2c4d 0%, #16223b 100%);
+  color: #ffffff;
+  font-weight: 600;
+  border: 1px solid #2b406e;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
+.sidebar-item.active .sidebar-icon {
+  color: #3b82f6;
+}
+
+/* Drilldown Specific Styling */
+.drilldown-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebar-back-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+  background-color: #141d30;
+  border: 1px solid #22304d;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.sidebar-back-btn:hover {
+  background-color: #1c2a47;
+  border-color: #3b82f6;
+}
+
+.sidebar-item.sub-item {
+  padding-left: 1rem;
+  font-size: 0.85rem;
+}
+
+.sidebar-item.sub-item.active {
+  background: #192745;
+  color: #60a5fa;
+  border-color: #2b406e;
+}

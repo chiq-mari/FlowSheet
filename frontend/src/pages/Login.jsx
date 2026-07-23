@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import logo from '../assets/flowsheet_logo.png';
 import { ProfileSelector } from '../componentes/ProfileSelector';
+import DashboardLayout from './DashboardLayout';
 import './Login.css';
 
 // Obtenemos la URL base desde el archivo .env
@@ -116,20 +117,13 @@ export function Login() {
     );
   }
 
-  // PASO 3: Sesión iniciada y perfil activo (Vista del sistema con perfil seleccionado)
+  // PASO 3: Sesión iniciada y perfil activo (Vista del Dashboard dinámico)
   if (user && selectedProfile) {
     return (
-      <div className="login-container">
-        <div className="login-card">
-          <h2>¡Bienvenido, {user.person_na || user.user_na}!</h2>
-          <p className="active-profile-info">
-            Perfil Activo: <strong>{selectedProfile.profile_de}</strong>
-          </p>
-          <button onClick={handleLogout} className="logout-button" disabled={loading}>
-            Cerrar Sesión
-          </button>
-        </div>
-      </div>
+      <DashboardLayout
+        initialUser={{ ...user, activeProfile: selectedProfile }}
+        onLogoutSuccess={handleLogout}
+      />
     );
   }
 

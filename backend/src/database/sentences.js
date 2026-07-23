@@ -109,6 +109,44 @@ export const sentences = {
                 WHERE s.sub_system_de = $1 
                     AND opt.option_de = $2
             );
+        `,
+        // --- CONSULTAS DASHBOARD DINÁMICO ---
+
+        // Obtiene los subsistemas permitidos para el perfil seleccionado ($1 = profile_id)
+        getSubSystemsByProfile: `
+            SELECT DISTINCT 
+                s.sub_system_id, 
+                s.sub_system_de
+            FROM sub_system s
+            INNER JOIN option o ON s.sub_system_id = o.sub_system_id
+            INNER JOIN permission_option po ON o.option_id = po.option_id
+            WHERE po.profile_id = $1
+            ORDER BY s.sub_system_de ASC;
+        `,
+
+        // Obtiene las opciones y sub-opciones según el perfil ($1 = profile_id) y subsistema ($2 = sub_system_id)
+        getOptionsByProfileAndSubSystem: `
+            SELECT DISTINCT 
+                o.option_id, 
+                o.option_de, 
+                o.parent_option_id, 
+                o.sub_system_id
+            FROM option o
+            INNER JOIN permission_option po ON o.option_id = po.option_id
+            WHERE po.profile_id = $1 
+              AND o.sub_system_id = $2
+            ORDER BY o.option_id ASC;
+        `,
+
+        // Obtiene los perfiles asignados a un usuario ($1 = user_id)
+        getUserProfiles: `
+            SELECT 
+                p.profile_id,
+                p.profile_de
+            FROM profile p
+            INNER JOIN user_profile up ON p.profile_id = up.profile_id
+            WHERE up.user_id = $1
+            ORDER BY p.profile_de ASC;
         `
     }
 };

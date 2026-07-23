@@ -1,0 +1,17 @@
+# Ignora NPI (node_modules) en cualquier nivel de carpetas (raíz, backend, frontend, etc.)
+node_modules/
+**/node_modules/
+
+# Ignora todos los archivos de variables de entorno (.env) en cualquier carpeta
+#.env
+#.env.*
+#**/.env
+
+# Ignora carpetas de compilación / dist
+dist/
+build/
+
+# Archivos de sistema / Logs
+*.log
+.DS_Store
+.vscode/

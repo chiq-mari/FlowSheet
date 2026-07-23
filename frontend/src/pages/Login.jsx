@@ -52,7 +52,7 @@ export function Login() {
   };
 
   // Función para seleccionar un perfil de usuario
-  const handleSelectProfile = async (profile) => {
+  const handleSelectProfile = async (profile) => { // profile : {profile_de: --, profile_id: --}
     setErrorMsg('');
     setLoading(true);
 

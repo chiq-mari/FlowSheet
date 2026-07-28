@@ -117,6 +117,14 @@
   transition: all 0.2s ease;
 }
 
+.sidebar-back-icon,
+.sidebar-back-btn svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
 .sidebar-back-btn:hover {
   background-color: #1c2a47;
   border-color: #3b82f6;

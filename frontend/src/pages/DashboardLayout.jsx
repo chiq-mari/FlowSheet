@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../componentes/Header';
 import Sidebar from '../componentes/Sidebar';
+import LeaderDashboard from './LeaderDashboard';
 import './DashboardLayout.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -119,6 +120,9 @@ const DashboardLayout = ({ initialUser = null, onLogoutSuccess = null, children 
     }
   };
 
+  const activeProfile = profiles.find((p) => String(p.profile_id) === String(activeProfileId));
+  const isActiveLider = activeProfile?.profile_de === 'Lider' || activeProfile?.profile_de?.toLowerCase().includes('lider');
+
   return (
     <div className="dashboard-layout">
       {/* Header Superior */}
@@ -144,9 +148,22 @@ const DashboardLayout = ({ initialUser = null, onLogoutSuccess = null, children 
           isOpen={sidebarOpen}
         />
 
-        {/* ÁREA DE CONTENIDO PRINCIPAL (Completamente Vacío según la indicación explícita del usuario) */}
+        {/* ÁREA DE CONTENIDO PRINCIPAL */}
         <main className="dashboard-main">
-          {children}
+          {children || (
+            <>
+              {selectedOption?.option_de === 'Dashboard' && isActiveLider ? (
+                <LeaderDashboard user={user} />
+              ) : (
+                <div className="no-view-selected" style={{ padding: '3rem 2rem', textAlign: 'center', color: '#64748b' }}>
+                  <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', color: '#1e293b' }}>
+                    {selectedOption ? `Sección: ${selectedOption.option_de}` : 'Seleccione una opción'}
+                  </h3>
+                  <p style={{ margin: 0, fontSize: '0.9rem' }}>Esta vista se encuentra en desarrollo.</p>
+                </div>
+              )}
+            </>
+          )}
         </main>
       </div>
 

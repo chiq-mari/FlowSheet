@@ -42,4 +42,79 @@ router.get('/options/:profileId/:subSystemId', async (req, res) => {
   }
 });
 
+// GET /api/dashboard/leader/metrics
+// Obtiene métricas agregadas del líder (proyectos activos, empleados, notificaciones hoy, horas semanales)
+router.get('/leader/metrics', async (req, res) => {
+  try {
+    if (!global.global_session.sessionExist(req)) {
+      return res.status(401).json({ success: false, message: "Sesión expirada o inválida." });
+    }
+    const userData = global.global_session.getDataSession(req);
+    const userId = userData.user_id;
+
+    const sql = global.global_db.getSentence('leader', 'getMetrics');
+    const rows = await global.global_db.exeQuery(sql, [userId]);
+    
+    // Si no tiene registros o da null, retornar objeto default
+    const metrics = rows[0] || {
+      active_projects: 0,
+      total_employees: 0,
+      notifications_today: 0,
+      total_hours_week: 0
+    };
+    
+    res.json({ success: true, metrics });
+  } catch (error) {
+    console.error("Error al obtener métricas del líder:", error);
+    res.status(500).json({ success: false, message: "Error interno al obtener métricas" });
+  }
+});
+
+// GET /api/dashboard/leader/projects
+// Obtiene proyectos administrados por el líder de equipo
+router.get('/leader/projects', async (req, res) => {
+  try {
+    if (!global.global_session.sessionExist(req)) {
+      return res.status(401).json({ success: false, message: "Sesión expirada o inválida." });
+    }
+    const userData = global.global_session.getDataSession(req);
+    const userId = userData.user_id;
+
+    const sql = global.global_db.getSentence('leader', 'getProjects');
+    const rows = await global.global_db.exeQuery(sql, [userId]);
+    
+    res.json({ success: true, projects: rows });
+  } catch (error) {
+    console.error("Error al obtener proyectos del líder:", error);
+    res.status(500).json({ success: false, message: "Error interno al obtener proyectos" });
+  }
+});
+
+// GET /api/dashboard/leader/notifications
+// Obtiene notificaciones filtradas de los proyectos del líder de equipo
+router.get('/leader/notifications', async (req, res) => {
+  try {
+    if (!global.global_session.sessionExist(req)) {
+      return res.status(401).json({ success: false, message: "Sesión expirada o inválida." });
+    }
+    const userData = global.global_session.getDataSession(req);
+    const userId = userData.user_id;
+
+    const { fechaInicio, fechaFin, proyectoId } = req.query;
+
+    const sql = global.global_db.getSentence('leader', 'getNotifications');
+    const rows = await global.global_db.exeQuery(sql, [
+      userId,
+      fechaInicio || null,
+      fechaFin || null,
+      proyectoId || null
+    ]);
+    
+    res.json({ success: true, notifications: rows });
+  } catch (error) {
+    console.error("Error al obtener notificaciones del líder:", error);
+    res.status(500).json({ success: false, message: "Error interno al obtener notificaciones" });
+  }
+});
+
 export default router;

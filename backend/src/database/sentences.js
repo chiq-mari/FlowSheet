@@ -148,5 +148,98 @@ export const sentences = {
             WHERE up.user_id = $1
             ORDER BY p.profile_de ASC;
         `
+    },
+    leader: {
+        getMetrics: `
+            SELECT 
+              -- Metric 1: Active Projects
+              (SELECT COUNT(DISTINCT p.id)::int
+               FROM public.proyect p
+               INNER JOIN public.proyect_role pr ON p.id = pr.proyect_id
+               INNER JOIN public.proyect_role_user pru ON pr.id = pru.proyect_role_id
+               INNER JOIN public.status s ON p.status_id = s.status_id
+               WHERE pru.user_id = $1 
+                 AND pr.name = 'Lider' 
+                 AND s.status_de = 'En desarrollo'
+              ) as active_projects,
+
+              -- Metric 2: Total Employees
+              (SELECT COUNT(DISTINCT pru_member.user_id)::int
+               FROM public.proyect_role_user pru_leader
+               INNER JOIN public.proyect_role pr_leader ON pru_leader.proyect_role_id = pr_leader.id
+               INNER JOIN public.proyect_role pr_member ON pr_leader.proyect_id = pr_member.proyect_id
+               INNER JOIN public.proyect_role_user pru_member ON pr_member.id = pru_member.proyect_role_id
+               WHERE pru_leader.user_id = $1 
+                 AND pr_leader.name = 'Lider'
+                 AND pru_member.user_id <> $1
+              ) as total_employees,
+
+              -- Metric 3: Notifications Today
+              (SELECT COUNT(n.id)::int
+               FROM public.notification n
+               INNER JOIN public.user_assignment ua ON n.user_assignment_id = ua.id
+               INNER JOIN public.proyect_role_user pru_member ON ua.proyect_role_user_id = pru_member.id
+               INNER JOIN public.proyect_role pr_member ON pru_member.proyect_role_id = pr_member.id
+               INNER JOIN public.proyect_role pr_leader ON pr_member.proyect_id = pr_leader.proyect_id
+               INNER JOIN public.proyect_role_user pru_leader ON pr_leader.id = pru_leader.proyect_role_id
+               WHERE pru_leader.user_id = $1 
+                 AND pr_leader.name = 'Lider'
+                 AND pru_member.user_id <> $1
+                 AND n.date = CURRENT_DATE
+              ) as notifications_today,
+
+              -- Metric 4: Total Hours Spent This Week
+              (SELECT COALESCE(SUM(n.total_hours_spent), 0)::float
+               FROM public.notification n
+               INNER JOIN public.user_assignment ua ON n.user_assignment_id = ua.id
+               INNER JOIN public.proyect_role_user pru_member ON ua.proyect_role_user_id = pru_member.id
+               INNER JOIN public.proyect_role pr_member ON pru_member.proyect_role_id = pr_member.id
+               INNER JOIN public.proyect_role pr_leader ON pr_member.proyect_id = pr_leader.proyect_id
+               INNER JOIN public.proyect_role_user pru_leader ON pr_leader.id = pru_leader.proyect_role_id
+               WHERE pru_leader.user_id = $1 
+                 AND pr_leader.name = 'Lider'
+                 AND n.date >= date_trunc('week', CURRENT_DATE)
+                 AND n.date < date_trunc('week', CURRENT_DATE) + INTERVAL '7 days'
+              ) as total_hours_week;
+        `,
+        getProjects: `
+            SELECT DISTINCT p.id, p.name
+            FROM public.proyect p
+            INNER JOIN public.proyect_role pr ON p.id = pr.proyect_id
+            INNER JOIN public.proyect_role_user pru ON pr.id = pru.proyect_role_id
+            WHERE pru.user_id = $1 AND pr.name = 'Lider'
+            ORDER BY p.name ASC;
+        `,
+        getNotifications: `
+            SELECT 
+              n.id, 
+              n.date, 
+              n.progress_percentage, 
+              n.total_hours_spent, 
+              n.observation, 
+              n.notification_time,
+              pe.person_na, 
+              pe.person_ln, 
+              u.user_na,
+              proj.id as project_id, 
+              proj.name as project_name,
+              assign.name as assignment_name
+            FROM public.notification n
+            INNER JOIN public.user_assignment ua ON n.user_assignment_id = ua.id
+            INNER JOIN public.assignment assign ON ua.assignment_id = assign.id
+            INNER JOIN public.proyect_role_user pru_member ON ua.proyect_role_user_id = pru_member.id
+            INNER JOIN public.proyect_role pr_member ON pru_member.proyect_role_id = pr_member.id
+            INNER JOIN public.proyect proj ON pr_member.proyect_id = proj.id
+            INNER JOIN public.proyect_role pr_leader ON proj.id = pr_leader.proyect_id
+            INNER JOIN public.proyect_role_user pru_leader ON pr_leader.id = pru_leader.proyect_role_id
+            INNER JOIN public."user" u ON pru_member.user_id = u.user_id
+            INNER JOIN public.person pe ON u.person_id = pe.person_id
+            WHERE pru_leader.user_id = $1 
+              AND pr_leader.name = 'Lider'
+              AND ($2::date IS NULL OR n.date >= $2)
+              AND ($3::date IS NULL OR n.date <= $3)
+              AND ($4::varchar IS NULL OR $4 = '' OR proj.id::varchar = $4)
+            ORDER BY n.date DESC, n.notification_time DESC;
+        `
     }
 };

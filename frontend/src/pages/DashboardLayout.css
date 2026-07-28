@@ -1,12 +1,13 @@
 /* src/pages/DashboardLayout.css */
 
 .dashboard-layout {
-  min-height: 100vh;
+  height: 100vh;
   background-color: #ffffff;
   color: #1e293b;
   display: flex;
   flex-direction: column;
   position: relative;
+  overflow: hidden;
 }
 
 .dashboard-body {

@@ -3,6 +3,14 @@ import logo from '../assets/flowsheet_logo.png';
 import { UserAvatar } from './UserAvatar';
 import './Header.css';
 
+/*
+user: Objeto con los datos del usuario autenticado (person_na, user_na, etc.).
+profiles / activeProfileId / onProfileChange: Lista de perfiles, ID del perfil activo y función para solicitar el cambio de perfil.
+subSystems / activeSubSystemId / onSubSystemChange: Lista de subsistemas permitidos, ID del subsistema activo y función para cambiarlo.
+onLogout: Función para disparar el cierre de sesión.
+onToggleSidebar: Función para colapsar/abrir la barra lateral en la UI. 
+*/
+
 const Header = ({ 
   user, 
   profiles = [], 

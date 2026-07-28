@@ -2,8 +2,8 @@
 
 .dashboard-layout {
   min-height: 100vh;
-  background-color: #0c101d;
-  color: #f1f5f9;
+  background-color: #ffffff;
+  color: #1e293b;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -19,7 +19,8 @@
   flex: 1;
   padding: 1.5rem;
   overflow-y: auto;
-  background-color: #0c101d;
+  background-color: #ffffff; /* White background */
+  color: #1e293b; /* Dark text for contrast */
   display: flex;
   flex-direction: column;
 }

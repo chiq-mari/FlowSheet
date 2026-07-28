@@ -2,10 +2,10 @@
 
 .sidebar-container {
   width: 15rem; /* 240px */
-  background-color: #0c101d;
+  background-color: #131b2e; /* Distinct blue/navy background, lighter than header */
   color: #cbd5e1;
-  border-right: 1px solid #1a2235;
-  height: calc(100vh - 4rem);
+  border-right: 1px solid #1d283f;
+  height: calc(100vh - 4.5rem);
   display: flex;
   flex-direction: column;
   justify-content: space-between;

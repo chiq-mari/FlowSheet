@@ -55,7 +55,7 @@ const Header = ({
           className="header-icon-btn hamburger-btn"
           title="Alternar Menú"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="header-icon-svg hamburger-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
@@ -72,7 +72,7 @@ const Header = ({
               className="subsystem-pill-btn"
             >
               <span>{activeSubSystem ? activeSubSystem.sub_system_de : 'Subsistema'}</span>
-              <svg className={`w-3.5 h-3.5 transition-transform ${subSystemDropdownOpen ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`header-icon-svg subsystem-arrow-svg ${subSystemDropdownOpen ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -103,7 +103,7 @@ const Header = ({
       <div className="header-right">
         {/* Botón de Notificaciones */}
         <button className="header-icon-btn notification-btn" title="Notificaciones">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="header-icon-svg notification-bell-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
           </svg>
           <span className="notification-badge"></span>
@@ -151,7 +151,7 @@ const Header = ({
               <div className="dropdown-divider"></div>
 
               <button onClick={onLogout} className="logout-btn">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="logout-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
                 Cerrar sesión

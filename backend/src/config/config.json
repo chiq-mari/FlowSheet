@@ -16,10 +16,10 @@
 
   "database": {
     "user": "postgres",
-    "password": "admin",
+    "password": "postgres",
     "host": "localhost",
-    "port": 2012,
-    "database": "flowsheet_db"
+    "port": 5432,
+    "database": "flowsheet"
   },
 
   "poolOptions": {

@@ -3,9 +3,9 @@ node_modules/
 **/node_modules/
 
 # Ignora todos los archivos de variables de entorno (.env) en cualquier carpeta
-#.env
-#.env.*
-#**/.env
+.env
+.env.*
+**/.env
 
 # Ignora carpetas de compilación / dist
 dist/

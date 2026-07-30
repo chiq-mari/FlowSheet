@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../componentes/Header';
 import Sidebar from '../componentes/Sidebar';
-import LeaderDashboard from './LeaderDashboard';
 import { resolveDashboardPage } from './pageRegistry';
 import './DashboardLayout.css';
 
@@ -122,7 +121,6 @@ const DashboardLayout = ({ initialUser = null, onLogoutSuccess = null, children 
   };
 
   const activeProfile = profiles.find((p) => String(p.profile_id) === String(activeProfileId));
-  const isActiveLider = activeProfile?.profile_de === 'Lider' || activeProfile?.profile_de?.toLowerCase().includes('lider');
 
   return (
     <div className="dashboard-layout">
@@ -156,7 +154,7 @@ const DashboardLayout = ({ initialUser = null, onLogoutSuccess = null, children 
           ) : (
             (() => {
               const SelectedPage = resolveDashboardPage(selectedOption?.option_de);
-              if (SelectedPage) return <SelectedPage />;
+              if (SelectedPage) return <SelectedPage user={user} activeProfile={activeProfile} />;
               return (
                 <div className="dashboard-placeholder">
                   {selectedOption

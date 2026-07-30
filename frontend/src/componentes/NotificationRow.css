@@ -1,0 +1,117 @@
+/* src/componentes/NotificationRow.css */
+
+.notification-row {
+  background-color: #ffffff;
+  border-left: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #f1f5f9;
+  padding: 1.5rem 2rem;
+  display: flex;
+  gap: 1.25rem;
+  transition: background-color 0.2s ease;
+}
+
+.notification-row:last-child {
+  border-bottom: 1px solid #e2e8f0;
+  border-radius: 0 0 12px 12px;
+}
+
+.notification-row:hover {
+  background-color: #f8fafc;
+}
+
+.row-avatar-container {
+  flex-shrink: 0;
+}
+
+.row-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0; /* Avoid flex item overflow */
+}
+
+.row-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.activity-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.project-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background-color: #f1f5f9;
+  color: #475569;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.project-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.row-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.825rem;
+  color: #94a3b8;
+}
+
+.employee-username {
+  font-weight: 500;
+  color: #64748b;
+}
+
+.meta-separator {
+  color: #cbd5e1;
+}
+
+.notification-timestamp {
+  font-weight: 400;
+}
+
+.row-observation {
+  font-size: 0.875rem;
+  color: #475569;
+  line-height: 1.45;
+  margin: 0.5rem 0 0.75rem 0;
+  background-color: #f8fafc;
+  padding: 0.625rem 0.875rem;
+  border-radius: 6px;
+  border-left: 3px solid #cbd5e1;
+}
+
+.row-progress-container {
+  margin-top: 0.25rem;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .notification-row {
+    padding: 1.25rem 1rem;
+    gap: 0.875rem;
+  }
+  
+  .row-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+  
+  .project-tag {
+    align-self: flex-start;
+  }
+}

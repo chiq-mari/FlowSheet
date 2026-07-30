@@ -6,7 +6,7 @@ import { ProjectIcon } from './ProjectIcon';
 import { ActivityBarChart } from './ActivityBarChart';
 import { ProgressLineChart } from './ProgressLineChart';
 import { getReportStateLabel, formatReportDateTime } from './projectVisuals';
-import { callMethod } from '../../services/toProcess';
+import { ejecutarMetodo } from '../../services/toProcess';
 import './Member.css';
 import './MemberReports.css';
 
@@ -70,7 +70,7 @@ const MemberReports = () => {
       setLoading(true);
       setErrorMsg('');
       try {
-        const data = await callMethod('Hojas de Tiempo', 'Actividades', 'consultarNotificaciones');
+        const data = await ejecutarMetodo('Hojas de Tiempo', 'Actividades', 'consultarNotificaciones');
         setNotifications(data.notifications);
       } catch (err) {
         console.error('Error al cargar la hoja de tiempo:', err);
@@ -187,8 +187,7 @@ const MemberReports = () => {
                 <div className="reports-table-columns">
                   <span>PROYECTO</span>
                   <span>ACTIVIDAD</span>
-                  <span>% COMPLETADO</span>
-                  <span>HR DE TRABAJO</span>
+                  <span>AVANCE</span>
                   <span>ESTADO</span>
                 </div>
                 {proyectNotifications.map((n) => (
@@ -202,10 +201,8 @@ const MemberReports = () => {
                       <span className="reports-table-activity-date">{formatReportDateTime(n.date, n.notification_time)}</span>
                     </div>
                     <div className="reports-table-progress">
-                      <ProgressBar value={n.progress_percentage} hideLabel />
-                      <span>{n.progress_percentage}%</span>
+                      <ProgressBar percentage={n.progress_percentage} hours={n.total_hours_spent} />
                     </div>
-                    <span className="reports-table-hours">{n.total_hours_spent}h</span>
                     <StatusBadge status={getReportStateLabel(n.progress_percentage)} />
                   </div>
                 ))}

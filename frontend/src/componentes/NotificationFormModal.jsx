@@ -1,6 +1,6 @@
 // src/componentes/NotificationFormModal.jsx
 import { useState } from 'react';
-import { callMethod } from '../services/toProcess';
+import { ejecutarMetodo } from '../services/toProcess';
 import './buttons.css';
 import './NotificationFormModal.css';
 
@@ -31,7 +31,7 @@ export function NotificationFormModal({ assignment, onClose, onSaved }) {
     const currentTime = now.toTimeString().slice(0, 8); // HH:MM:SS
 
     try {
-      const data = await callMethod('Hojas de Tiempo', 'Actividades', 'registrarAvance', {
+      const data = await ejecutarMetodo('Hojas de Tiempo', 'Actividades', 'registrarAvance', {
         user_assignment_id: assignment.user_assignment_id,
         date: today,
         notification_time: currentTime,

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import ProjectsTab from './ProjectsTab';
 import ActivitiesTab from './ActivitiesTab';
-import { callMethod } from '../../services/toProcess';
+import { ejecutarMetodo } from '../../services/toProcess';
 import './Member.css';
 import './MemberActivities.css';
 
@@ -17,7 +17,7 @@ const MemberActivities = () => {
     setLoading(true);
     setErrorMsg('');
     try {
-      const data = await callMethod('Hojas de Tiempo', 'Actividades', 'consultarAsignaciones');
+      const data = await ejecutarMetodo('Hojas de Tiempo', 'Actividades', 'consultarAsignaciones');
       setAssignments(data.assignments);
     } catch (err) {
       console.error('Error al cargar actividades:', err);

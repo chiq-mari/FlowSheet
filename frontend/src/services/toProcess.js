@@ -1,19 +1,11 @@
-// src/services/toProcess.js
+// Cliente genérico del endpoint único de transacciones protegidas por permisos (POST /toProcess).
+// Cualquier feature nueva que necesite ejecutar un método de negocio en el backend
+// debe apoyarse en esta función en vez de hacer fetch directo, para no repetir
+// la forma del payload ni el manejo de errores en cada componente.
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-/**
- * Invoca un método de negocio a través de /toProcess, el motor de reflexión que ya usa
- * el resto del sistema (autoriza contra permission_method y ejecuta por reflexión).
- * Cualquier módulo (Miembro, Líder, Admin) puede reutilizar este helper.
- *
- * @param {string} subSystem - Nombre del sub-sistema (ej. 'Hojas de Tiempo')
- * @param {string} object - Nombre del objeto/componente registrado en Security (ej. 'Actividades')
- * @param {string} method - Nombre del método a ejecutar (ej. 'consultarAsignaciones')
- * @param {object} executionParams - Parámetros que recibirá el método en el backend
- * @returns {Promise<any>} El campo `data` de la respuesta exitosa
- * @throws {Error} Si la transacción es denegada o falla (error.status trae el código HTTP)
- */
-export async function callMethod(subSystem, object, method, executionParams = {}) {
+export async function ejecutarMetodo(subSystem, object, method, executionParams = {}) {
   const response = await fetch(`${API_URL}/toProcess`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -21,13 +13,19 @@ export async function callMethod(subSystem, object, method, executionParams = {}
     body: JSON.stringify({ targetType: 'method', subSystem, object, method, executionParams }),
   });
 
-  const payload = await response.json().catch(() => ({}));
-
-  if (!response.ok || payload.status !== 'Éxito') {
-    const error = new Error(payload.message || 'Error al ejecutar la transacción.');
-    error.status = response.status;
-    throw error;
+  if (response.status === 401) {
+    // La sesión expiró (o nunca existió): no tiene sentido seguir mostrando el dashboard
+    // con datos de una sesión muerta. Recarga dura al login, que limpia todo el estado
+    // de React de un solo golpe (header, sidebar, lo que sea que haya quedado cargado).
+    window.location.href = '/login';
+    throw new Error('Sesión expirada. Redirigiendo al login...');
   }
 
-  return payload.data;
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.message || 'Error al ejecutar la transacción.');
+  }
+
+  return data.data;
 }

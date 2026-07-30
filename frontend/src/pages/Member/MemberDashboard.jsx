@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { UserAvatar } from '../../componentes/UserAvatar';
 import { ProgressBar } from '../../componentes/ProgressBar';
-import { callMethod } from '../../services/toProcess';
+import { ejecutarMetodo } from '../../services/toProcess';
 import './Member.css';
 import './MemberDashboard.css';
 
@@ -45,8 +45,8 @@ const MemberDashboard = ({ user }) => {
       setErrorMsg('');
       try {
         const [assignData, notifData] = await Promise.all([
-          callMethod('Hojas de Tiempo', 'Actividades', 'consultarAsignaciones'),
-          callMethod('Hojas de Tiempo', 'Actividades', 'consultarNotificaciones'),
+          ejecutarMetodo('Hojas de Tiempo', 'Actividades', 'consultarAsignaciones'),
+          ejecutarMetodo('Hojas de Tiempo', 'Actividades', 'consultarNotificaciones'),
         ]);
 
         setAssignments(assignData.assignments);
@@ -191,15 +191,7 @@ const MemberDashboard = ({ user }) => {
                     </span>
                   </div>
                   <span className="member-notif-row-meta">{formatShortDateTime(n.date, n.notification_time)}</span>
-                  <ProgressBar value={n.progress_percentage} hideLabel />
-                </div>
-                <div className="member-notif-row-side">
-                  <span className={`member-notif-percent member-notif-percent--${
-                    n.progress_percentage >= 100 ? 'complete' : n.progress_percentage >= 50 ? 'mid' : 'low'
-                  }`}>
-                    {n.progress_percentage}%
-                  </span>
-                  <span className="member-notif-hours">{n.total_hours_spent}h</span>
+                  <ProgressBar percentage={n.progress_percentage} hours={n.total_hours_spent} />
                 </div>
               </div>
             ))

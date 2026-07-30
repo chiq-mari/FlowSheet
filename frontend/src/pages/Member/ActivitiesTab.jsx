@@ -137,8 +137,7 @@ const ActivitiesTab = ({ assignments, selectedProyectId, onSelectProyect, onAssi
           <div key={a.user_assignment_id} className="activities-table-row">
             <span className="activities-table-activity-name">{a.assignment_name}</span>
             <div className="activities-table-progress">
-              <ProgressBar value={a.last_progress} hideLabel />
-              <span className="activities-table-percent">{a.last_progress}%</span>
+              <ProgressBar percentage={a.last_progress} hours={a.total_hours_logged} />
               <button
                 className="activities-bell-btn"
                 title="Registrar avance"

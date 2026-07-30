@@ -150,13 +150,130 @@ export const sentences = {
 
         // Obtiene los perfiles asignados a un usuario ($1 = user_id)
         getUserProfiles: `
-            SELECT 
+            SELECT
                 p.profile_id,
                 p.profile_de
             FROM profile p
             INNER JOIN user_profile up ON p.profile_id = up.profile_id
             WHERE up.user_id = $1
             ORDER BY p.profile_de ASC;
+        `,
+
+        // --- INTEGRIDAD DE OBJETOS Y MÉTODOS (usados por Security.loadObjectMap / loadMethodMap) ---
+
+        // Trae todos los objetos (clases) registrados en la BD, con su subsistema dueño
+        getAllObjects: `
+            SELECT
+                obj.object_id,
+                obj.object_de,
+                sub.sub_system_de
+            FROM object obj
+            INNER JOIN sub_system sub ON obj.sub_system_id = sub.sub_system_id
+        `,
+
+        // Trae todos los métodos registrados en la BD, con su objeto y subsistema dueño
+        getAllMethods: `
+            SELECT
+                m.method_id,
+                m.method_de,
+                obj.object_de,
+                sub.sub_system_de
+            FROM method m
+            INNER JOIN object obj ON m.object_id = obj.object_id
+            INNER JOIN sub_system sub ON obj.sub_system_id = sub.sub_system_id
+        `
+    },
+    leader: {
+        getMetrics: `
+            SELECT 
+              -- Metric 1: Active Projects
+              (SELECT COUNT(DISTINCT p.id)::int
+               FROM public.proyect p
+               INNER JOIN public.proyect_role pr ON p.id = pr.proyect_id
+               INNER JOIN public.proyect_role_user pru ON pr.id = pru.proyect_role_id
+               INNER JOIN public.status s ON p.status_id = s.status_id
+               WHERE pru.user_id = $1 
+                 AND pr.name = 'Lider' 
+                 AND s.status_de = 'En desarrollo'
+              ) as active_projects,
+
+              -- Metric 2: Total Employees
+              (SELECT COUNT(DISTINCT pru_member.user_id)::int
+               FROM public.proyect_role_user pru_leader
+               INNER JOIN public.proyect_role pr_leader ON pru_leader.proyect_role_id = pr_leader.id
+               INNER JOIN public.proyect_role pr_member ON pr_leader.proyect_id = pr_member.proyect_id
+               INNER JOIN public.proyect_role_user pru_member ON pr_member.id = pru_member.proyect_role_id
+               WHERE pru_leader.user_id = $1 
+                 AND pr_leader.name = 'Lider'
+                 AND pru_member.user_id <> $1
+              ) as total_employees,
+
+              -- Metric 3: Notifications Today
+              (SELECT COUNT(n.id)::int
+               FROM public.notification n
+               INNER JOIN public.user_assignment ua ON n.user_assignment_id = ua.id
+               INNER JOIN public.proyect_role_user pru_member ON ua.proyect_role_user_id = pru_member.id
+               INNER JOIN public.proyect_role pr_member ON pru_member.proyect_role_id = pr_member.id
+               INNER JOIN public.proyect_role pr_leader ON pr_member.proyect_id = pr_leader.proyect_id
+               INNER JOIN public.proyect_role_user pru_leader ON pr_leader.id = pru_leader.proyect_role_id
+               WHERE pru_leader.user_id = $1 
+                 AND pr_leader.name = 'Lider'
+                 AND pru_member.user_id <> $1
+                 AND n.date = CURRENT_DATE
+              ) as notifications_today,
+
+              -- Metric 4: Total Hours Spent This Week
+              (SELECT COALESCE(SUM(n.total_hours_spent), 0)::float
+               FROM public.notification n
+               INNER JOIN public.user_assignment ua ON n.user_assignment_id = ua.id
+               INNER JOIN public.proyect_role_user pru_member ON ua.proyect_role_user_id = pru_member.id
+               INNER JOIN public.proyect_role pr_member ON pru_member.proyect_role_id = pr_member.id
+               INNER JOIN public.proyect_role pr_leader ON pr_member.proyect_id = pr_leader.proyect_id
+               INNER JOIN public.proyect_role_user pru_leader ON pr_leader.id = pru_leader.proyect_role_id
+               WHERE pru_leader.user_id = $1 
+                 AND pr_leader.name = 'Lider'
+                 AND n.date >= date_trunc('week', CURRENT_DATE)
+                 AND n.date < date_trunc('week', CURRENT_DATE) + INTERVAL '7 days'
+              ) as total_hours_week;
+        `,
+        getProjects: `
+            SELECT DISTINCT p.id, p.name
+            FROM public.proyect p
+            INNER JOIN public.proyect_role pr ON p.id = pr.proyect_id
+            INNER JOIN public.proyect_role_user pru ON pr.id = pru.proyect_role_id
+            WHERE pru.user_id = $1 AND pr.name = 'Lider'
+            ORDER BY p.name ASC;
+        `,
+        getNotifications: `
+            SELECT 
+              n.id, 
+              n.date, 
+              n.progress_percentage, 
+              n.total_hours_spent, 
+              n.observation, 
+              n.notification_time,
+              pe.person_na, 
+              pe.person_ln, 
+              u.user_na,
+              proj.id as project_id, 
+              proj.name as project_name,
+              assign.name as assignment_name
+            FROM public.notification n
+            INNER JOIN public.user_assignment ua ON n.user_assignment_id = ua.id
+            INNER JOIN public.assignment assign ON ua.assignment_id = assign.id
+            INNER JOIN public.proyect_role_user pru_member ON ua.proyect_role_user_id = pru_member.id
+            INNER JOIN public.proyect_role pr_member ON pru_member.proyect_role_id = pr_member.id
+            INNER JOIN public.proyect proj ON pr_member.proyect_id = proj.id
+            INNER JOIN public.proyect_role pr_leader ON proj.id = pr_leader.proyect_id
+            INNER JOIN public.proyect_role_user pru_leader ON pr_leader.id = pru_leader.proyect_role_id
+            INNER JOIN public."user" u ON pru_member.user_id = u.user_id
+            INNER JOIN public.person pe ON u.person_id = pe.person_id
+            WHERE pru_leader.user_id = $1 
+              AND pr_leader.name = 'Lider'
+              AND ($2::date IS NULL OR n.date >= $2)
+              AND ($3::date IS NULL OR n.date <= $3)
+              AND ($4::varchar IS NULL OR $4 = '' OR proj.id::varchar = $4)
+            ORDER BY n.date DESC, n.notification_time DESC;
         `
     },
 
@@ -180,7 +297,12 @@ export const sentences = {
                     WHERE n.user_assignment_id = ua.id
                     ORDER BY n.date DESC, n.notification_time DESC
                     LIMIT 1
-                ), 0) AS last_progress
+                ), 0) AS last_progress,
+                COALESCE((
+                    SELECT SUM(n.total_hours_spent)
+                    FROM notification n
+                    WHERE n.user_assignment_id = ua.id
+                ), 0) AS total_hours_logged
             FROM user_assignment ua
             INNER JOIN assignment a ON ua.assignment_id = a.id
             INNER JOIN status ast ON a.status_id = ast.status_id
@@ -235,4 +357,85 @@ export const sentences = {
             RETURNING id, user_assignment_id, date, notification_time, progress_percentage, total_hours_spent, observation;
         `
     }
+    ,
+    person: {
+    // 1. Obtener todas las personas con su Cargo (para la tabla principal)
+    // Permite filtrar opcionalmente por nombre/apellido/CI/correo desde Node.js si se manda un término de búsqueda
+    getAll: `
+      SELECT 
+        p.person_id,
+        p.person_ci,
+        p.person_na,
+        p.person_ln,
+        p.person_email,
+        p.charge_id,
+        c.name AS charge_name
+      FROM person p
+      LEFT JOIN charge c ON p.charge_id = c.id
+      WHERE 
+        ($1::text IS NULL OR $1 = '' OR 
+         LOWER(p.person_na) LIKE LOWER('%' || $1 || '%') OR 
+         LOWER(p.person_ln) LIKE LOWER('%' || $1 || '%') OR
+         LOWER(p.person_ci) LIKE LOWER('%' || $1 || '%'))
+      ORDER BY p.person_id DESC;
+    `,
+
+    // 2. Obtener una persona por ID (para cargar en modal de edición)
+    getById: `
+      SELECT 
+        p.person_id,
+        p.person_ci,
+        p.person_na,
+        p.person_ln,
+        p.person_email,
+        p.charge_id,
+        c.name AS charge_name
+      FROM person p
+      LEFT JOIN charge c ON p.charge_id = c.id
+      WHERE p.person_id = $1;
+    `,
+
+    // 3. Crear persona (+)
+    create: `
+      INSERT INTO person (
+        person_ci,
+        person_na,
+        person_ln,
+        person_email,
+        charge_id
+      ) 
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING person_id, person_ci, person_na, person_ln, person_email, charge_id;
+    `,
+
+    // 4. Actualizar persona (icono lápiz)
+    update: `
+      UPDATE person
+      SET 
+        person_ci = $1,
+        person_na = $2,
+        person_ln = $3,
+        person_email = $4,
+        charge_id = $5
+      WHERE person_id = $6
+      RETURNING person_id, person_ci, person_na, person_ln, person_email, charge_id;
+    `,
+
+    // 5. Eliminar persona (icono papelera - soporta ID único o array vía ANY)
+    delete: `
+      DELETE FROM person
+      WHERE person_id = ANY($1::int[]);
+    `
+  },
+
+  // Extra necesario para llenar el <select> o combobox de Cargos en el formulario de creación/edición
+  charge: {
+    getAll: `
+      SELECT 
+        id, 
+        name 
+      FROM charge 
+      ORDER BY name ASC;
+    `
+  }
 };

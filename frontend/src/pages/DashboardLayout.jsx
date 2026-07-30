@@ -11,7 +11,7 @@ const DashboardLayout = ({ initialUser = null, onLogoutSuccess = null, children 
   const [user, setUser] = useState(initialUser);
   const [profiles, setProfiles] = useState(initialUser?.user_profiles || []);
   const [activeProfileId, setActiveProfileId] = useState(
-    initialUser?.user_profiles?.[0]?.profile_id || null
+    initialUser?.activeProfile?.profile_id || initialUser?.user_profiles?.[0]?.profile_id || null
   );
 
   const [subSystems, setSubSystems] = useState([]);

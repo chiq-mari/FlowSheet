@@ -26,8 +26,8 @@ export function LeaderDashboard({ user }) {
   const [errorMsg, setErrorMsg] = useState('');
 
   // Get user name
-  const userName = user?.person_na 
-    ? `${user.person_na} ${user.person_ln || ''}`.trim() 
+  const userName = user?.person_na
+    ? `${user.person_na} ${user.person_ln || ''}`.trim()
     : 'Líder de Proyecto';
 
   // 1. Fetch metrics & projects once on mount
@@ -99,30 +99,30 @@ export function LeaderDashboard({ user }) {
 
       {/* 2. Metrics Grid */}
       <div className="metrics-grid">
-        <MetricCard 
-          value={metrics.active_projects} 
-          label="Proyectos Activos" 
-          iconType="projects" 
+        <MetricCard
+          value={metrics.active_projects}
+          label="Proyectos Activos"
+          iconType="projects"
         />
-        <MetricCard 
-          value={metrics.total_employees} 
-          label="Total Empleados" 
-          iconType="employees" 
+        <MetricCard
+          value={metrics.total_employees}
+          label="Total Empleados"
+          iconType="employees"
         />
-        <MetricCard 
-          value={metrics.notifications_today} 
-          label="Notif. Hoy" 
-          iconType="notifications" 
+        <MetricCard
+          value={metrics.notifications_today}
+          label="Notif. Hoy"
+          iconType="notifications"
         />
-        <MetricCard 
-          value={`${metrics.total_hours_week}h`} 
-          label="Horas Registradas" 
-          iconType="hours" 
+        <MetricCard
+          value={`${metrics.total_hours_week}h`}
+          label="Horas Registradas"
+          iconType="hours"
         />
       </div>
 
       {/* 3. Filters */}
-      <NotificationFilters 
+      <NotificationFilters
         projects={projects}
         filters={filters}
         onChangeFilters={setFilters}

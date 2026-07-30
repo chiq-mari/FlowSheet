@@ -1,0 +1,27 @@
+/* src/componentes/InfoPill.css */
+.info-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.info-pill svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  flex-shrink: 0;
+}
+
+.info-pill--blue {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.info-pill--purple {
+  background-color: #f5f3ff;
+  color: #7c3aed;
+}

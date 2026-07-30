@@ -2,6 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../componentes/Header';
 import Sidebar from '../componentes/Sidebar';
+import MemberDashboard from './Member/MemberDashboard';
+import MemberActivities from './Member/MemberActivities';
+import MemberReports from './Member/MemberReports';
+import MemberChatsPlaceholder from './Member/MemberChatsPlaceholder';
 import './DashboardLayout.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -119,6 +123,32 @@ const DashboardLayout = ({ initialUser = null, onLogoutSuccess = null, children 
     }
   };
 
+  // Nombre del perfil activo (ej. 'Miembro', 'Lider', 'Administrador') para decidir qué módulo renderizar
+  const activeProfileName = profiles.find(
+    (p) => String(p.profile_id) === String(activeProfileId)
+  )?.profile_de || '';
+
+  // Enrutador de contenido del MÓDULO MIEMBRO según la opción de sidebar seleccionada.
+  // Los demás perfiles (Admin/Líder) conservan el comportamiento original (children / vacío)
+  // hasta que su propio módulo se implemente.
+  const renderMainContent = () => {
+    if (activeProfileName === 'Miembro') {
+      switch (selectedOption?.option_de) {
+        case 'Dashboard':
+          return <MemberDashboard user={user} />;
+        case 'Proyectos':
+          return <MemberActivities />;
+        case 'Reportes':
+          return <MemberReports />;
+        case 'Mis Chats':
+          return <MemberChatsPlaceholder />;
+        default:
+          return children;
+      }
+    }
+    return children;
+  };
+
   return (
     <div className="dashboard-layout">
       {/* Header Superior */}
@@ -144,9 +174,10 @@ const DashboardLayout = ({ initialUser = null, onLogoutSuccess = null, children 
           isOpen={sidebarOpen}
         />
 
-        {/* ÁREA DE CONTENIDO PRINCIPAL (Completamente Vacío según la indicación explícita del usuario) */}
+        {/* ÁREA DE CONTENIDO PRINCIPAL: Módulo Miembro enrutado por opción; el resto de perfiles
+            mantiene el comportamiento original hasta que se implemente su propio módulo */}
         <main className="dashboard-main">
-          {children}
+          {renderMainContent()}
         </main>
       </div>
 

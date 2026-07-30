@@ -12,6 +12,16 @@ const dbSchema = {
         permission_method: 'public.permission_method',
         option: 'public.option',
         permission_option: 'public.permission_option'
+    },
+    // Módulo de Negocio (Control de Hojas de Tiempo) - usado por el Miembro de equipo
+    business: {
+        assignment: 'public.assignment',
+        user_assignment: 'public.user_assignment',
+        notification: 'public.notification',
+        proyect: 'public.proyect',
+        proyect_role: 'public.proyect_role',
+        proyect_role_user: 'public.proyect_role_user',
+        status: 'public.status'
     }
 };
 
@@ -147,6 +157,82 @@ export const sentences = {
             INNER JOIN user_profile up ON p.profile_id = up.profile_id
             WHERE up.user_id = $1
             ORDER BY p.profile_de ASC;
+        `
+    },
+
+    // --- MÓDULO DE NEGOCIO (HOJAS DE TIEMPO) - PERFIL MIEMBRO ---
+    business: {
+        // Trae las actividades (assignments) asignadas al miembro autenticado ($1 = user_id),
+        // junto con su proyecto, rol y el último % de avance notificado (si existe)
+        getMemberAssignments: `
+            SELECT
+                ua.id AS user_assignment_id,
+                a.id AS assignment_id,
+                a.name AS assignment_name,
+                ast.status_de AS assignment_status,
+                pr.name AS proyect_role_name,
+                p.id AS proyect_id,
+                p.name AS proyect_name,
+                pst.status_de AS proyect_status,
+                COALESCE((
+                    SELECT n.progress_percentage
+                    FROM notification n
+                    WHERE n.user_assignment_id = ua.id
+                    ORDER BY n.date DESC, n.notification_time DESC
+                    LIMIT 1
+                ), 0) AS last_progress
+            FROM user_assignment ua
+            INNER JOIN assignment a ON ua.assignment_id = a.id
+            INNER JOIN status ast ON a.status_id = ast.status_id
+            INNER JOIN proyect_role_user pru ON ua.proyect_role_user_id = pru.id
+            INNER JOIN proyect_role pr ON pru.proyect_role_id = pr.id
+            INNER JOIN proyect p ON pr.proyect_id = p.id
+            INNER JOIN status pst ON p.status_id = pst.status_id
+            WHERE pru.user_id = $1
+            ORDER BY p.name ASC, a.name ASC;
+        `,
+
+        // Verifica que una asignación ($1 = user_assignment_id) pertenezca realmente
+        // al usuario autenticado ($2 = user_id), para evitar que un miembro reporte
+        // avances sobre actividades de otro compañero
+        checkAssignmentOwnership: `
+            SELECT ua.id
+            FROM user_assignment ua
+            INNER JOIN proyect_role_user pru ON ua.proyect_role_user_id = pru.id
+            WHERE ua.id = $1 AND pru.user_id = $2;
+        `,
+
+        // Trae la hoja de tiempo (histórico de notificaciones de avance) del miembro autenticado ($1 = user_id)
+        getMemberNotifications: `
+            SELECT
+                n.id,
+                n.date,
+                n.notification_time,
+                n.progress_percentage,
+                n.total_hours_spent,
+                n.observation,
+                a.name AS assignment_name,
+                p.id AS proyect_id,
+                p.name AS proyect_name
+            FROM notification n
+            INNER JOIN user_assignment ua ON n.user_assignment_id = ua.id
+            INNER JOIN assignment a ON ua.assignment_id = a.id
+            INNER JOIN proyect_role_user pru ON ua.proyect_role_user_id = pru.id
+            INNER JOIN proyect_role pr ON pru.proyect_role_id = pr.id
+            INNER JOIN proyect p ON pr.proyect_id = p.id
+            WHERE pru.user_id = $1
+            ORDER BY n.date DESC, n.notification_time DESC;
+        `,
+
+        // Inserta un nuevo avance (notificación de hoja de tiempo) sobre una actividad asignada
+        // ($1 = user_assignment_id, $2 = date, $3 = progress_percentage, $4 = observation,
+        //  $5 = notification_time, $6 = total_hours_spent)
+        insertNotification: `
+            INSERT INTO notification (
+                user_assignment_id, date, progress_percentage, observation, notification_time, total_hours_spent
+            )
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING id, user_assignment_id, date, notification_time, progress_percentage, total_hours_spent, observation;
         `
     }
 };

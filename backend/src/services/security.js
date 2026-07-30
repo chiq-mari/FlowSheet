@@ -1,4 +1,5 @@
 import Calculadora from './calculadora.js'; // Importamos la clase
+import Actividades from './actividades.js'; // Módulo de Negocio (Hojas de Tiempo) - Perfil Miembro
 
 class Security {
     constructor() {
@@ -11,7 +12,8 @@ class Security {
         this.loadPermissionMenu();
         // 2. Cargamos las clases en una propiedad del componente de seguridad
         this.componentes = {
-            'Calculadora': Calculadora
+            'Calculadora': Calculadora,
+            'Actividades': Actividades
         };
     }
     

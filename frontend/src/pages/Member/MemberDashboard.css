@@ -1,0 +1,246 @@
+/* src/pages/Member/MemberDashboard.css */
+
+/* --- Banner de bienvenida --- */
+.member-welcome-banner {
+  background: linear-gradient(135deg, #1c2b42, #27374d);
+  border-radius: 0.85rem;
+  padding: 1.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-bottom: 1.25rem;
+}
+
+.member-welcome-greeting {
+  color: #cbd5e1;
+  font-size: 0.85rem;
+}
+
+.member-welcome-name {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.member-welcome-date {
+  color: #94a3b8;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+}
+
+/* --- Tarjetas de estadísticas (layout horizontal: icono + número) --- */
+.member-stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.member-stat-card-h {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.85rem;
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.member-stat-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.65rem;
+  background-color: #f1f5f9;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.member-stat-icon svg {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.member-stat-h-value {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.member-stat-h-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* --- Panel "Mis Notificaciones" --- */
+.member-notif-panel {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.85rem;
+  overflow: hidden;
+}
+
+.member-notif-header {
+  background-color: #1c2b42;
+  padding: 1.1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.member-notif-header-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.6rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #93c5fd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.member-notif-header-icon svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.member-notif-header h3 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.member-notif-count {
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+.member-notif-filters {
+  background-color: #1c2b42;
+  padding: 0 1.5rem 1.25rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1rem;
+}
+
+.member-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.member-filter-group label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.member-filter-group input,
+.member-filter-group select {
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  font-size: 0.85rem;
+  color: #1e293b;
+  font-family: inherit;
+  outline: none;
+}
+
+.member-filter-group input:focus,
+.member-filter-group select:focus {
+  border-color: #3b82f6;
+}
+
+.member-notif-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.member-notif-empty {
+  padding: 1.5rem;
+}
+
+.member-notif-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.member-notif-row:last-child {
+  border-bottom: none;
+}
+
+.member-notif-row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.member-notif-row-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.member-notif-row-title {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 0.875rem;
+}
+
+.member-notif-row-project {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.member-notif-row-project svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.member-notif-row-meta {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+.member-notif-row-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  flex-shrink: 0;
+  min-width: 3.5rem;
+}
+
+.member-notif-percent {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.member-notif-percent--low { color: #d97706; }
+.member-notif-percent--mid { color: #2563eb; }
+.member-notif-percent--complete { color: #16a34a; }
+
+.member-notif-hours {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}

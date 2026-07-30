@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../componentes/Header';
 import Sidebar from '../componentes/Sidebar';
+import { resolveDashboardPage } from './pageRegistry';
 import './DashboardLayout.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -10,7 +11,7 @@ const DashboardLayout = ({ initialUser = null, onLogoutSuccess = null, children 
   const [user, setUser] = useState(initialUser);
   const [profiles, setProfiles] = useState(initialUser?.user_profiles || []);
   const [activeProfileId, setActiveProfileId] = useState(
-    initialUser?.user_profiles?.[0]?.profile_id || null
+    initialUser?.activeProfile?.profile_id || initialUser?.user_profiles?.[0]?.profile_id || null
   );
 
   const [subSystems, setSubSystems] = useState([]);
@@ -144,9 +145,23 @@ const DashboardLayout = ({ initialUser = null, onLogoutSuccess = null, children 
           isOpen={sidebarOpen}
         />
 
-        {/* ÁREA DE CONTENIDO PRINCIPAL (Completamente Vacío según la indicación explícita del usuario) */}
+        {/* ÁREA DE CONTENIDO PRINCIPAL: renderiza la página registrada para la opción de menú activa */}
         <main className="dashboard-main">
-          {children}
+          {children ? (
+            children
+          ) : (
+            (() => {
+              const SelectedPage = resolveDashboardPage(selectedOption?.option_de);
+              if (SelectedPage) return <SelectedPage />;
+              return (
+                <div className="dashboard-placeholder">
+                  {selectedOption
+                    ? `La sección "${selectedOption.option_de}" aún no tiene una pantalla implementada.`
+                    : 'Selecciona una opción del menú para comenzar.'}
+                </div>
+              );
+            })()
+          )}
         </main>
       </div>
 

@@ -5,9 +5,13 @@ const router = Router();
 // GET /api/dashboard/subsystems/:profileId
 // Obtiene la lista de subsistemas permitidos para el perfil especificado
 router.get('/subsystems/:profileId', async (req, res) => {
+  if (!global.global_session.sessionExist(req)) {
+    return res.status(401).json({ success: false, message: "Debe hacer sesión para consultar esta información." });
+  }
+
   try {
     const { profileId } = req.params;
-    
+
     if (!profileId || profileId === 'null' || profileId === 'undefined') {
       return res.status(400).json({ success: false, message: "ID de perfil inválido." });
     }
@@ -25,6 +29,10 @@ router.get('/subsystems/:profileId', async (req, res) => {
 // GET /api/dashboard/options/:profileId/:subSystemId
 // Obtiene la lista de opciones (padres e hijas) para el perfil y subsistema especificado
 router.get('/options/:profileId/:subSystemId', async (req, res) => {
+  if (!global.global_session.sessionExist(req)) {
+    return res.status(401).json({ success: false, message: "Debe hacer sesión para consultar esta información." });
+  }
+
   try {
     const { profileId, subSystemId } = req.params;
 

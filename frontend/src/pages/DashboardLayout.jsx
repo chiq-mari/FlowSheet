@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../componentes/Header';
 import Sidebar from '../componentes/Sidebar';
 import LeaderDashboard from './LeaderDashboard';
+import { resolveDashboardPage } from './pageRegistry';
 import './DashboardLayout.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -148,21 +149,22 @@ const DashboardLayout = ({ initialUser = null, onLogoutSuccess = null, children 
           isOpen={sidebarOpen}
         />
 
-        {/* ÁREA DE CONTENIDO PRINCIPAL */}
+        {/* ÁREA DE CONTENIDO PRINCIPAL: renderiza la página registrada para la opción de menú activa */}
         <main className="dashboard-main">
-          {children || (
-            <>
-              {selectedOption?.option_de === 'Dashboard' && isActiveLider ? (
-                <LeaderDashboard user={user} />
-              ) : (
-                <div className="no-view-selected" style={{ padding: '3rem 2rem', textAlign: 'center', color: '#64748b' }}>
-                  <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem', color: '#1e293b' }}>
-                    {selectedOption ? `Sección: ${selectedOption.option_de}` : 'Seleccione una opción'}
-                  </h3>
-                  <p style={{ margin: 0, fontSize: '0.9rem' }}>Esta vista se encuentra en desarrollo.</p>
+          {children ? (
+            children
+          ) : (
+            (() => {
+              const SelectedPage = resolveDashboardPage(selectedOption?.option_de);
+              if (SelectedPage) return <SelectedPage />;
+              return (
+                <div className="dashboard-placeholder">
+                  {selectedOption
+                    ? `La sección "${selectedOption.option_de}" aún no tiene una pantalla implementada.`
+                    : 'Selecciona una opción del menú para comenzar.'}
                 </div>
-              )}
-            </>
+              );
+            })()
           )}
         </main>
       </div>

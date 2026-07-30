@@ -7,6 +7,7 @@ import { DBComponent } from './config/dbComponent.js';
 import Security from './services/security.js';
 import authRoutes from './routes/authRoutes.js';
 import dashboardRoutes from './routes/dashboardRoutes.js'; // Importa el nuevo router
+import processRoutes from './routes/processRoutes.js'; // Router del endpoint único /toProcess
 
 //VARIABLES GLOBALES
 global.global_db = new DBComponent();
@@ -50,94 +51,8 @@ app.use('/api/auth', authRoutes);
 // Montamos el router del Dashboard bajo el prefijo /api/dashboard
 app.use('/api/dashboard', dashboardRoutes);
 
-// seguridad
-
-app.post('/toProcess', async (req, res) => {
-    // ¿tiene_sesion?
-    if (!global.global_session.sessionExist(req)) {
-        return res.status(401).json({ 
-            status: "Error",
-            message: "Debe hacer sesión para ejecutar transacciones." 
-        });
-    }
-
-    // 1. Extraemos SOLO el tipo de objetivo primero para decidir el camino
-    const { targetType } = req.body; //method or menu
-    const userData = global.global_session.getDataSession(req);
-    const profileId = req.session.activeProfileId || userData.user_profiles?.[0]?.profile_id;
-
-    try {
-        // ================================================================
-        // BIFURCACIÓN DE FLUJO: MÉTODOS VS MENÚS
-        // ================================================================
-        
-        if (targetType === 'method') {
-            // 2. Extraemos ÚNICAMENTE lo necesario para ejecutar código por reflexión
-            const { subSystem, object, method, executionParams = {} } = req.body;  //pone exeParams default
-
-            // 🔍 1. VALIDACIÓN DEL PERMISO DE MÉTODO EN LA ADUANA CENTRAL
-            const tienePermisoMetodo = global.global_security.getPermissionMethod(
-                subSystem, 
-                object, 
-                method, 
-                profileId
-            );
-
-            if (!tienePermisoMetodo) {
-                return res.status(403).json({
-                    status: "Acceso Denegado",
-                    message: `El perfil [${profileId}] no tiene permisos para ejecutar [${method}] en [${subSystem}/${object}].`
-                });
-            }
-
-            // 🚀 2. SI TIENE PERMISO, EJECUTAMOS POR REFLEXIÓN
-            // InyectamosuserData para dar trazabilidad a la lógica de negocio
-
-            const resultadoEjecucion = await global.global_security.exeMethod(
-                subSystem, 
-                object, 
-                method, 
-                executionParams,
-                userData
-            );
-
-            return res.json({
-                status: "Éxito",
-                type: "method_execution",
-                message: `Transacción aprobada y ejecutada en [${subSystem}/${object}].`,
-                data: resultadoEjecucion
-            });
-
-        } else if (targetType === 'menu') {
-            // 3. Extraemos ÚNICAMENTE lo necesario para validar accesos visuales
-            const { subSystem, menu } = req.body;
-
-            const tieneAccesoMenu = global.global_security.getPermissionMenu(subSystem, menu, profileId);
-
-            if (!tieneAccesoMenu) {
-                return res.status(403).json({
-                    status: "Acceso Denegado",
-                    message: `El perfil ${profileId} no tiene permisos para visualizar el menú [${menu}].`
-                });
-            }
-
-            return res.json({
-                status: "Éxito",
-                type: "menu_render",
-                message: `Acceso concedido para la opción de menú: [${menu}].`
-            });
-
-        } else {
-            return res.status(400).json({ status: "Error", message: "targetType inválido." });
-        }
-
-    } catch (error) {
-        return res.status(403).json({
-            status: "Acceso Denegado",
-            message: error.message
-        });
-    }
-});
+// 🔒 Punto único de entrada para transacciones protegidas por permisos (POST /toProcess)
+app.use('/', processRoutes);
 
 // =================================
 // 3. LEVANTAR EL SERVIDOR 

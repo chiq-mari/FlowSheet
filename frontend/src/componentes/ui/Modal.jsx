@@ -42,7 +42,8 @@ const Modal = ({ title, icon, tone = 'default', onClose, children }) => {
     <div className="modal-overlay" onMouseDown={handleOverlayClick}>
       <div className={`modal-container ${
         tone === 'danger' ? 'modal-tone-danger' : 
-        tone === 'info' ? 'modal-tone-info' : ''
+        tone === 'info' ? 'modal-tone-info' : 
+        tone === 'warning' ? 'modal-tone-warning' : ''
       }`}>
         <header className="modal-header">
           <div className="modal-header-title">

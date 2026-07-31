@@ -854,6 +854,10 @@ export const sentences = {
         DELETE FROM public.assignment
         WHERE id = $1;
     `,
+    getActivityStatusById: `
+        SELECT status_id FROM public.assignment
+        WHERE id = $1;
+    `,
     getTeamMembers: `
         SELECT 
             pru.id AS proyect_role_user_id,
@@ -893,6 +897,48 @@ export const sentences = {
     deleteNotificationsByUserAssignment: `
         DELETE FROM public.notification
         WHERE user_assignment_id = $1;
+    `,
+    
+    // --- Roles queries ---
+    getRolesForProject: `
+        SELECT id, name, proyect_id 
+        FROM public.proyect_role 
+        WHERE proyect_id = $1 
+        ORDER BY name ASC;
+    `,
+    insertRole: `
+        INSERT INTO public.proyect_role (name, proyect_id) 
+        VALUES ($1, $2) 
+        RETURNING id, name, proyect_id;
+    `,
+    updateRole: `
+        UPDATE public.proyect_role 
+        SET name = $1 
+        WHERE id = $2 
+        RETURNING id, name, proyect_id;
+    `,
+    deleteRole: `
+        DELETE FROM public.proyect_role 
+        WHERE id = $1;
+    `,
+    deleteNotificationsByRole: `
+        DELETE FROM public.notification
+        WHERE user_assignment_id IN (
+            SELECT ua.id 
+            FROM public.user_assignment ua
+            INNER JOIN public.proyect_role_user pru ON ua.proyect_role_user_id = pru.id
+            WHERE pru.proyect_role_id = $1
+        );
+    `,
+    deleteUserAssignmentsByRole: `
+        DELETE FROM public.user_assignment
+        WHERE proyect_role_user_id IN (
+            SELECT id FROM public.proyect_role_user WHERE proyect_role_id = $1
+        );
+    `,
+    deleteProyectRoleUsersByRole: `
+        DELETE FROM public.proyect_role_user
+        WHERE proyect_role_id = $1;
     `
   }
 };

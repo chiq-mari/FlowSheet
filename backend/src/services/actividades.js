@@ -148,7 +148,8 @@ class Actividades {
 
         let finalStatusId = statusId;
         if (!finalStatusId) {
-            const currentAct = await global.global_db.exeQuery('SELECT status_id FROM public.assignment WHERE id = $1', [activityId]);
+            const statusSql = global.global_db.getSentence('business', 'getActivityStatusById');
+            const currentAct = await global.global_db.exeQuery(statusSql, [activityId]);
             if (currentAct.length > 0) {
                 finalStatusId = currentAct[0].status_id;
             } else {

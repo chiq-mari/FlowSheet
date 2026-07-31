@@ -6,6 +6,7 @@ import MantenimientoSubsistemas from './MantenimientoSubsistemas/MantenimientoSu
 import MantenimientoOpciones from './MantenimientoOpciones/MantenimientoOpciones';
 import MantenimientoObjetos from './MantenimientoObjetos/MantenimientoObjetos';
 import MantenimientoMetodos from './MantenimientoMetodos/MantenimientoMetodos';
+import MantenimientoPerfiles from './MantenimientoPerfiles/MantenimientoPerfiles';
 import LeaderDashboard from './LeaderDashboard';
 
 // Selector dinámico para la opción Dashboard según el perfil seleccionado
@@ -39,6 +40,7 @@ const pageRegistry = {
   'opciones': MantenimientoOpciones,
   'objetos': MantenimientoObjetos,
   'metodos': MantenimientoMetodos,
+  'perfiles': MantenimientoPerfiles,
   'dashboard': DashboardSelector,
 };
 

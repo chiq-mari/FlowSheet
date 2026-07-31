@@ -153,6 +153,15 @@
   background-color: #ef4444;
 }
 
+.pill-purple {
+  background-color: #f5f3ff;
+  color: #6d28d9;
+}
+
+.pill-purple .pill-dot {
+  background-color: #8b5cf6;
+}
+
 /* Variante "badge" con borde, sin relleno (ej. nombre de método: INSERT/SELECT/...) */
 .pill-outline {
   background-color: #ffffff;

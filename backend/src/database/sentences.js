@@ -586,5 +586,64 @@ export const sentences = {
       DELETE FROM method
       WHERE method_id = ANY($1::uuid[]);
     `
+  },
+
+  // Perfil: no es un CRUD sobre la tabla profile en sí (esos ya existen fijos), sino
+  // la gestión de la relación N:M user_profile — resumen de conteos, la grilla de
+  // usuarios+perfiles, y asignar/quitar un perfil a un usuario puntual.
+  perfil: {
+    // Tarjetas de la pestaña "Ver Perfiles": cuántos usuarios tiene cada perfil.
+    getResumen: `
+      SELECT
+        p.profile_id,
+        p.profile_de,
+        COUNT(up.user_id)::int AS user_count
+      FROM profile p
+      LEFT JOIN user_profile up ON up.profile_id = p.profile_id
+      GROUP BY p.profile_id, p.profile_de
+      ORDER BY p.profile_de ASC;
+    `,
+
+    // Grilla de la pestaña "Ver Perfiles": cada usuario con sus perfiles asignados
+    // como arreglo JSON (evita el problema N+1 de una consulta por usuario).
+    getUsuarios: `
+      SELECT
+        u.user_id,
+        u.user_na,
+        u.user_email,
+        COALESCE(
+          json_agg(
+            json_build_object('profile_id', p.profile_id, 'profile_de', p.profile_de)
+            ORDER BY p.profile_de ASC
+          ) FILTER (WHERE p.profile_id IS NOT NULL),
+          '[]'
+        ) AS perfiles
+      FROM "user" u
+      LEFT JOIN user_profile up ON up.user_id = u.user_id
+      LEFT JOIN profile p ON up.profile_id = p.profile_id
+      GROUP BY u.user_id, u.user_na, u.user_email
+      ORDER BY u.user_na ASC;
+    `,
+
+    // Pestaña "Asignar": perfiles ya asignados al usuario elegido en el buscador.
+    getPerfilesPorUsuario: `
+      SELECT p.profile_id, p.profile_de
+      FROM user_profile up
+      INNER JOIN profile p ON up.profile_id = p.profile_id
+      WHERE up.user_id = $1
+      ORDER BY p.profile_de ASC;
+    `,
+
+    asignarPerfil: `
+      INSERT INTO user_profile (user_id, profile_id)
+      VALUES ($1, $2)
+      ON CONFLICT DO NOTHING
+      RETURNING user_profile_id, user_id, profile_id;
+    `,
+
+    quitarPerfil: `
+      DELETE FROM user_profile
+      WHERE user_id = $1 AND profile_id = $2;
+    `
   }
 };

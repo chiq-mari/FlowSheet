@@ -94,6 +94,11 @@
   color: #ffffff;
 }
 
-.toolbar-add-btn:hover {
+.toolbar-add-btn:hover:not(:disabled) {
   background-color: #1f2a44;
+}
+
+.toolbar-add-btn:disabled {
+  background-color: #cbd5e1;
+  cursor: not-allowed;
 }

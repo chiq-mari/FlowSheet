@@ -62,7 +62,7 @@ router.get('/leader/metrics', async (req, res) => {
 
     const sql = global.global_db.getSentence('leader', 'getMetrics');
     const rows = await global.global_db.exeQuery(sql, [userId]);
-    
+
     // Si no tiene registros o da null, retornar objeto default
     const metrics = rows[0] || {
       active_projects: 0,
@@ -70,7 +70,7 @@ router.get('/leader/metrics', async (req, res) => {
       notifications_today: 0,
       total_hours_week: 0
     };
-    
+
     res.json({ success: true, metrics });
   } catch (error) {
     console.error("Error al obtener métricas del líder:", error);
@@ -90,7 +90,7 @@ router.get('/leader/projects', async (req, res) => {
 
     const sql = global.global_db.getSentence('leader', 'getProjects');
     const rows = await global.global_db.exeQuery(sql, [userId]);
-    
+
     res.json({ success: true, projects: rows });
   } catch (error) {
     console.error("Error al obtener proyectos del líder:", error);
@@ -117,11 +117,28 @@ router.get('/leader/notifications', async (req, res) => {
       fechaFin || null,
       proyectoId || null
     ]);
-    
+
     res.json({ success: true, notifications: rows });
   } catch (error) {
     console.error("Error al obtener notificaciones del líder:", error);
     res.status(500).json({ success: false, message: "Error interno al obtener notificaciones" });
+  }
+});
+
+// GET /api/dashboard/statuses
+// Obtiene el catálogo de estados generales (para dropdowns de proyectos y actividades)
+router.get('/statuses', async (req, res) => {
+  try {
+    if (!global.global_session.sessionExist(req)) {
+      return res.status(401).json({ success: false, message: "Sesión expirada o inválida." });
+    }
+    const sql = global.global_db.getSentence('status', 'getAll');
+    const rows = await global.global_db.exeQuery(sql);
+
+    res.json({ success: true, statuses: rows });
+  } catch (error) {
+    console.error("Error al obtener catálogo de estados:", error);
+    res.status(500).json({ success: false, message: "Error interno al obtener estados" });
   }
 });
 

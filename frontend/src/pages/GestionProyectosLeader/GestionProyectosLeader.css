@@ -1,0 +1,89 @@
+/* GestionProyectosLeader.css */
+.gestion-proyectos-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.gestion-proyectos-header {
+  background: linear-gradient(135deg, #1e293b, #2b3a54);
+  border-radius: 12px 12px 0 0;
+  padding: 1.25rem 2rem;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.gestion-proyectos-header-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #94a3b8;
+}
+
+.gestion-proyectos-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+/* Tabs Bar */
+.gestion-proyectos-tabs-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  padding: 0 1.5rem;
+  display: flex;
+  gap: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.gestion-proyectos-tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 1.25rem 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gestion-proyectos-tab-btn:hover {
+  color: #1e293b;
+}
+
+.gestion-proyectos-tab-btn.active {
+  color: #1e293b;
+  border-bottom-color: #1e293b;
+  font-weight: 700;
+}
+
+.tab-content-area {
+  margin-top: 0.5rem;
+}
+
+.tab-placeholder {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: #64748b;
+}
+
+.tab-placeholder h3 {
+  font-size: 1.25rem;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.tab-placeholder p {
+  margin: 0;
+  font-size: 0.9rem;
+}

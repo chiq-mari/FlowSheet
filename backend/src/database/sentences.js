@@ -346,5 +346,103 @@ export const sentences = {
       FROM charge 
       ORDER BY name ASC;
     `
+  },
+  
+  status: {
+    getAll: `
+      SELECT 
+        status_id, 
+        status_de 
+      FROM public.status 
+      ORDER BY status_de ASC;
+    `
+  },
+
+  proyecto: {
+    getAllForLeader: `
+        SELECT 
+          p.id, 
+          p.name, 
+          p.status_id,
+          s.status_de,
+          (SELECT COUNT(DISTINCT ua.assignment_id)::int
+           FROM public.proyect_role pr_inner
+           INNER JOIN public.proyect_role_user pru_inner ON pr_inner.id = pru_inner.proyect_role_id
+           INNER JOIN public.user_assignment ua ON pru_inner.id = ua.proyect_role_user_id
+           WHERE pr_inner.proyect_id = p.id
+          ) as activities_count,
+          (SELECT COUNT(DISTINCT pru_inner.user_id)::int
+           FROM public.proyect_role pr_inner
+           INNER JOIN public.proyect_role_user pru_inner ON pr_inner.id = pru_inner.proyect_role_id
+           WHERE pr_inner.proyect_id = p.id
+          ) as members_count,
+          (SELECT COUNT(DISTINCT pr_inner.id)::int
+           FROM public.proyect_role pr_inner
+           WHERE pr_inner.proyect_id = p.id
+          ) as roles_count
+        FROM public.proyect p
+        INNER JOIN public.status s ON p.status_id = s.status_id
+        INNER JOIN public.proyect_role pr ON p.id = pr.proyect_id
+        INNER JOIN public.proyect_role_user pru ON pr.id = pru.proyect_role_id
+        WHERE pru.user_id = $1 
+          AND pr.name = 'Lider'
+          AND ($2::text IS NULL OR $2 = '' OR LOWER(p.name) LIKE LOWER('%' || $2 || '%'))
+        ORDER BY p.name ASC;
+    `,
+    insertProyect: `
+        INSERT INTO public.proyect (name, status_id)
+        VALUES ($1, $2)
+        RETURNING id, name, status_id;
+    `,
+    insertDefaultRole: `
+        INSERT INTO public.proyect_role (proyect_id, name)
+        VALUES ($1, $2)
+        RETURNING id;
+    `,
+    insertProyectRoleUser: `
+        INSERT INTO public.proyect_role_user (proyect_role_id, user_id)
+        VALUES ($1, $2);
+    `,
+    updateProyect: `
+        UPDATE public.proyect
+        SET name = $1, status_id = $2
+        WHERE id = $3
+        RETURNING id, name, status_id;
+    `,
+    deleteProyect: `
+        DELETE FROM public.proyect
+        WHERE id = $1;
+    `,
+    deleteNotificationsByProyect: `
+        DELETE FROM public.notification
+        WHERE user_assignment_id IN (
+          SELECT ua.id 
+          FROM public.user_assignment ua
+          INNER JOIN public.proyect_role_user pru ON ua.proyect_role_user_id = pru.id
+          INNER JOIN public.proyect_role pr ON pru.proyect_role_id = pr.id
+          WHERE pr.proyect_id = $1
+        );
+    `,
+    deleteUserAssignmentsByProyect: `
+        DELETE FROM public.user_assignment
+        WHERE proyect_role_user_id IN (
+          SELECT pru.id 
+          FROM public.proyect_role_user pru
+          INNER JOIN public.proyect_role pr ON pru.proyect_role_id = pr.id
+          WHERE pr.proyect_id = $1
+        );
+    `,
+    deleteProyectRoleUsersByProyect: `
+        DELETE FROM public.proyect_role_user
+        WHERE proyect_role_id IN (
+          SELECT pr.id 
+          FROM public.proyect_role pr
+          WHERE pr.proyect_id = $1
+        );
+    `,
+    deleteProyectRolesByProyect: `
+        DELETE FROM public.proyect_role
+        WHERE proyect_id = $1;
+    `
   }
 };

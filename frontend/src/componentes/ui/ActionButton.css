@@ -1,0 +1,36 @@
+/* ActionButton.css */
+.action-btn {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.action-btn-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.edit-btn {
+  color: #f59e0b; /* Amber/Orange */
+}
+
+.edit-btn:hover {
+  background-color: #fef3c7; /* Light Amber */
+  transform: scale(1.08);
+}
+
+.delete-btn {
+  color: #ef4444; /* Red */
+}
+
+.delete-btn:hover {
+  background-color: #fee2e2; /* Light Red */
+  transform: scale(1.08);
+}

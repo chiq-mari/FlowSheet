@@ -444,5 +444,156 @@ export const sentences = {
         DELETE FROM public.proyect_role
         WHERE proyect_id = $1;
     `
+  },
+
+  business: {
+    // --- Member queries (friend's database queries) ---
+    getMemberAssignments: `
+        SELECT 
+            ua.id AS user_assignment_id,
+            a.id AS assignment_id,
+            a.name AS assignment_name,
+            p.name AS proyect_name,
+            pr.name AS role_name
+        FROM public.user_assignment ua
+        INNER JOIN public.assignment a ON ua.assignment_id = a.id
+        INNER JOIN public.proyect_role_user pru ON ua.proyect_role_user_id = pru.id
+        INNER JOIN public.proyect_role pr ON pru.proyect_role_id = pr.id
+        INNER JOIN public.proyect p ON pr.proyect_id = p.id
+        WHERE pru.user_id = $1
+        ORDER BY a.name ASC;
+    `,
+    getMemberNotifications: `
+        SELECT 
+            n.id AS notification_id,
+            n.date,
+            n.notification_time,
+            n.progress_percentage,
+            n.total_hours_spent,
+            n.observation,
+            a.name AS assignment_name,
+            p.name AS proyect_name
+        FROM public.notification n
+        INNER JOIN public.user_assignment ua ON n.user_assignment_id = ua.id
+        INNER JOIN public.assignment a ON ua.assignment_id = a.id
+        INNER JOIN public.proyect_role_user pru ON ua.proyect_role_user_id = pru.id
+        INNER JOIN public.proyect_role pr ON pru.proyect_role_id = pr.id
+        INNER JOIN public.proyect p ON pr.proyect_id = p.id
+        WHERE pru.user_id = $1
+        ORDER BY n.date DESC, n.notification_time DESC;
+    `,
+    checkAssignmentOwnership: `
+        SELECT ua.id 
+        FROM public.user_assignment ua
+        INNER JOIN public.proyect_role_user pru ON ua.proyect_role_user_id = pru.id
+        WHERE ua.id = $1 AND pru.user_id = $2;
+    `,
+    insertNotification: `
+        INSERT INTO public.notification (user_assignment_id, date, progress_percentage, observation, notification_time, total_hours_spent)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id, user_assignment_id, date, progress_percentage, observation, notification_time, total_hours_spent;
+    `,
+
+    // --- Leader activities management queries ---
+    getAllForProject: `
+        SELECT DISTINCT a.id, a.name, a.status_id, s.status_de 
+        FROM public.assignment a
+        INNER JOIN public.status s ON a.status_id = s.status_id
+        INNER JOIN public.user_assignment ua ON a.id = ua.assignment_id
+        INNER JOIN public.proyect_role_user pru ON ua.proyect_role_user_id = pru.id
+        INNER JOIN public.proyect_role pr ON pru.proyect_role_id = pr.id
+        WHERE pr.proyect_id = $1
+        ORDER BY a.name ASC;
+    `,
+    getAllAssignmentsForProject: `
+        SELECT 
+            ua.id AS user_assignment_id,
+            a.id AS assignment_id,
+            a.name AS assignment_name,
+            u.user_id,
+            u.user_na AS username,
+            pru.id AS proyect_role_user_id,
+            pr.name AS role_name,
+            pers.person_na,
+            pers.person_ln
+        FROM public.user_assignment ua
+        INNER JOIN public.assignment a ON ua.assignment_id = a.id
+        INNER JOIN public.proyect_role_user pru ON ua.proyect_role_user_id = pru.id
+        INNER JOIN public.proyect_role pr ON pru.proyect_role_id = pr.id
+        INNER JOIN public.user u ON pru.user_id = u.user_id
+        INNER JOIN public.person pers ON u.person_id = pers.person_id
+        WHERE pr.proyect_id = $1
+        ORDER BY a.name ASC, u.user_na ASC;
+    `,
+    insertActivity: `
+        INSERT INTO public.assignment (name, status_id)
+        VALUES ($1, $2)
+        RETURNING id, name, status_id;
+    `,
+    insertUserAssignment: `
+        INSERT INTO public.user_assignment (proyect_role_user_id, assignment_id)
+        VALUES ($1, $2)
+        RETURNING id;
+    `,
+    updateActivity: `
+        UPDATE public.assignment
+        SET name = $1, status_id = $2
+        WHERE id = $3
+        RETURNING id, name, status_id;
+    `,
+    deleteNotificationsByActivity: `
+        DELETE FROM public.notification
+        WHERE user_assignment_id IN (
+            SELECT id FROM public.user_assignment WHERE assignment_id = $1
+        );
+    `,
+    deleteUserAssignmentsByActivity: `
+        DELETE FROM public.user_assignment
+        WHERE assignment_id = $1;
+    `,
+    deleteActivity: `
+        DELETE FROM public.assignment
+        WHERE id = $1;
+    `,
+    getTeamMembers: `
+        SELECT 
+            pru.id AS proyect_role_user_id,
+            u.user_id,
+            u.user_na AS username,
+            pr.name AS role_name,
+            pers.person_na,
+            pers.person_ln
+        FROM public.proyect_role_user pru
+        INNER JOIN public.proyect_role pr ON pru.proyect_role_id = pr.id
+        INNER JOIN public.user u ON pru.user_id = u.user_id
+        INNER JOIN public.person pers ON u.person_id = pers.person_id
+        WHERE pr.proyect_id = $1
+        ORDER BY u.user_na ASC;
+    `,
+    deleteUserAssignment: `
+        DELETE FROM public.user_assignment
+        WHERE id = $1;
+    `,
+    getLeaderRoleUser: `
+        SELECT pru.id 
+        FROM public.proyect_role_user pru
+        INNER JOIN public.proyect_role pr ON pru.proyect_role_id = pr.id
+        WHERE pr.proyect_id = $1 AND pru.user_id = $2;
+    `,
+    getFirstRoleUser: `
+        SELECT pru.id 
+        FROM public.proyect_role_user pru
+        INNER JOIN public.proyect_role pr ON pru.proyect_role_id = pr.id
+        WHERE pr.proyect_id = $1
+        LIMIT 1;
+    `,
+    checkUserAssignmentExists: `
+        SELECT id FROM public.user_assignment 
+        WHERE proyect_role_user_id = $1 AND assignment_id = $2;
+    `,
+    deleteNotificationsByUserAssignment: `
+        DELETE FROM public.notification
+        WHERE user_assignment_id = $1;
+    `
   }
 };

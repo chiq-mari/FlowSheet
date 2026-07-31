@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import MisProyectosTab from './MisProyectos/MisProyectosTab';
+import ActividadesTab from './Actividades/ActividadesTab';
 import './GestionProyectosLeader.css';
 
 export function GestionProyectosLeader({ user, activeProfile }) {
@@ -17,12 +18,7 @@ export function GestionProyectosLeader({ user, activeProfile }) {
       case 'proyectos':
         return <MisProyectosTab user={user} activeProfile={activeProfile} />;
       case 'actividades':
-        return (
-          <div className="tab-placeholder">
-            <h3>Pestaña: Actividades</h3>
-            <p>La gestión de actividades asignadas al cargo se encuentra en desarrollo.</p>
-          </div>
-        );
+        return <ActividadesTab user={user} activeProfile={activeProfile} />;
       case 'equipos':
         return (
           <div className="tab-placeholder">

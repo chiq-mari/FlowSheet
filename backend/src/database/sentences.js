@@ -863,6 +863,8 @@ export const sentences = {
             pru.id AS proyect_role_user_id,
             u.user_id,
             u.user_na AS username,
+            u.user_email AS email,
+            pr.id AS proyect_role_id,
             pr.name AS role_name,
             pers.person_na,
             pers.person_ln
@@ -939,6 +941,50 @@ export const sentences = {
     deleteProyectRoleUsersByRole: `
         DELETE FROM public.proyect_role_user
         WHERE proyect_role_id = $1;
+    `,
+    
+    // --- Team Members queries ---
+    getAvailableUsers: `
+        SELECT 
+            u.user_id,
+            u.user_na AS username,
+            u.user_email AS email,
+            pers.person_na,
+            pers.person_ln
+        FROM public.user u
+        INNER JOIN public.person pers ON u.person_id = pers.person_id
+        WHERE u.user_id NOT IN (
+            SELECT user_id 
+            FROM public.proyect_role_user pru
+            INNER JOIN public.proyect_role pr ON pru.proyect_role_id = pr.id
+            WHERE pr.proyect_id = $1
+        )
+        ORDER BY u.user_na ASC;
+    `,
+    insertTeamMember: `
+        INSERT INTO public.proyect_role_user (proyect_role_id, user_id)
+        VALUES ($1, $2)
+        RETURNING id, proyect_role_id, user_id;
+    `,
+    updateTeamMember: `
+        UPDATE public.proyect_role_user
+        SET proyect_role_id = $1
+        WHERE id = $2
+        RETURNING id, proyect_role_id, user_id;
+    `,
+    deleteTeamMember: `
+        DELETE FROM public.proyect_role_user
+        WHERE id = $1;
+    `,
+    deleteNotificationsByTeamMember: `
+        DELETE FROM public.notification
+        WHERE user_assignment_id IN (
+            SELECT id FROM public.user_assignment WHERE proyect_role_user_id = $1
+        );
+    `,
+    deleteUserAssignmentsByTeamMember: `
+        DELETE FROM public.user_assignment
+        WHERE proyect_role_user_id = $1;
     `
   }
 };

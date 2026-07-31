@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import MisProyectosTab from './MisProyectos/MisProyectosTab';
 import ActividadesTab from './Actividades/ActividadesTab';
 import RolesTab from './Roles/RolesTab';
+import EquiposTab from './Equipos/EquiposTab';
 import './GestionProyectosLeader.css';
 
 export function GestionProyectosLeader({ user, activeProfile }) {
@@ -21,12 +22,7 @@ export function GestionProyectosLeader({ user, activeProfile }) {
       case 'actividades':
         return <ActividadesTab user={user} activeProfile={activeProfile} />;
       case 'equipos':
-        return (
-          <div className="tab-placeholder">
-            <h3>Pestaña: Equipos de Trabajo</h3>
-            <p>La asignación y visualización del equipo de trabajo se encuentra en desarrollo.</p>
-          </div>
-        );
+        return <EquiposTab user={user} activeProfile={activeProfile} />;
       case 'roles':
         return <RolesTab user={user} activeProfile={activeProfile} />;
       default:

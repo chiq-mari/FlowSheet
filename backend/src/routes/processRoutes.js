@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { runWithUser } from '../utils/auditContext.js';
 
 const router = Router();
 
@@ -45,14 +46,18 @@ router.post('/toProcess', async (req, res) => {
             }
 
             // 🚀 2. SI TIENE PERMISO, EJECUTAMOS POR REFLEXIÓN
-            // InyectamosuserData para dar trazabilidad a la lógica de negocio
-
-            const resultadoEjecucion = await global.global_security.exeMethod(
-                subSystem,
-                object,
-                method,
-                executionParams,
-                userData
+            // InyectamosuserData para dar trazabilidad a la lógica de negocio.
+            // runWithUser deja el user_id disponible para DBComponent.exeQuery
+            // durante toda esta ejecución, sin tener que reenviarlo a mano por
+            // cada clase de servicio -- así toda mutación real queda auditada sola.
+            const resultadoEjecucion = await runWithUser(userData.user_id, () =>
+                global.global_security.exeMethod(
+                    subSystem,
+                    object,
+                    method,
+                    executionParams,
+                    userData
+                )
             );
 
             return res.json({

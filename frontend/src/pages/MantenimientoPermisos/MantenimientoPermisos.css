@@ -1,0 +1,166 @@
+/* src/pages/MantenimientoPermisos/MantenimientoPermisos.css */
+/* Estilos propios de Mantenimiento de Permisos: tarjetas resumen, chips de
+   filtro por perfil, y el selector de Perfil del modal "Agregar". El color de
+   acento (azul en la pestaña Opciones, morado en Métodos) se resuelve con el
+   atributo data-accent en vez de repetir clases condicionales por elemento. */
+
+.permiso-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.permiso-summary-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background-color: #ffffff;
+}
+
+.permiso-summary-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.permiso-summary-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.permiso-summary-count {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+.permiso-summary-sub {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.permiso-summary-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border-radius: 0.6rem;
+  background-color: #f1f5f9;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.permiso-summary-icon svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+/* Chips de filtro por perfil */
+.permisos-filter-chips {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.permisos-chip {
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.permisos-chip:hover {
+  border-color: #cbd5e1;
+}
+
+.permisos-chip.active[data-accent="blue"] {
+  border-color: #3b82f6;
+  color: #1d4ed8;
+  background-color: #eff6ff;
+}
+
+.permisos-chip.active[data-accent="purple"] {
+  border-color: #8b5cf6;
+  color: #6d28d9;
+  background-color: #f5f3ff;
+}
+
+/* Botón "+ Agregar": mismo componente de SearchToolbar, coloreado según pestaña */
+.permisos-add-btn[data-accent="blue"] {
+  background-color: #2563eb;
+}
+.permisos-add-btn[data-accent="blue"]:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.permisos-add-btn[data-accent="purple"] {
+  background-color: #7c3aed;
+}
+.permisos-add-btn[data-accent="purple"]:hover:not(:disabled) {
+  background-color: #6d28d9;
+}
+
+/* Selector de Perfil (modal Agregar Permiso) */
+.perfil-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.perfil-selector-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+  color: #334155;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+}
+
+.perfil-selector-option svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.perfil-selector-option:hover {
+  border-color: #94a3b8;
+}
+
+.perfil-selector-option.active[data-accent="blue"] {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+  color: #1d4ed8;
+}
+.perfil-selector-option.active[data-accent="blue"] svg {
+  color: #1d4ed8;
+}
+
+.perfil-selector-option.active[data-accent="purple"] {
+  border-color: #8b5cf6;
+  background-color: #f5f3ff;
+  color: #6d28d9;
+}
+.perfil-selector-option.active[data-accent="purple"] svg {
+  color: #6d28d9;
+}

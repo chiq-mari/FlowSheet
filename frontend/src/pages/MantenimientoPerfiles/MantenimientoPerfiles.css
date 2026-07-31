@@ -34,33 +34,6 @@
   border-radius: 0.85rem 0.85rem 0 0;
 }
 
-.perfiles-tabs {
-  display: flex;
-  gap: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-  flex-shrink: 0;
-}
-
-.perfiles-tab {
-  padding: 0.85rem 0.25rem;
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #94a3b8;
-  cursor: pointer;
-}
-
-.perfiles-tab:hover {
-  color: #475569;
-}
-
-.perfiles-tab.active {
-  color: #131b2e;
-  border-bottom-color: #131b2e;
-}
-
 .perfiles-tab-body {
   flex: 1;
   min-height: 0;

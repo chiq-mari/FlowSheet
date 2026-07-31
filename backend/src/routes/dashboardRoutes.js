@@ -41,7 +41,7 @@ router.get('/options/:profileId/:subSystemId', async (req, res) => {
     }
 
     const sql = global.global_db.getSentence('security', 'getOptionsByProfileAndSubSystem');
-    const rows = await global.global_db.exeQuery(sql, [profileId, subSystemId]);
+    const rows = await global.global_db.exeQuery(sql, [subSystemId]);
 
     res.json({ success: true, options: rows });
   } catch (error) {

@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
+import Tabs from '../../componentes/ui/Tabs';
 import ResumenPerfilesTab from './ResumenPerfilesTab';
 import AsignarPerfilTab from './AsignarPerfilTab';
 import '../../componentes/ui/MaintenancePage.css';
 import './MantenimientoPerfiles.css';
+
+const TABS = [
+  { id: 'ver', label: 'Ver Perfiles' },
+  { id: 'asignar', label: 'Asignar' },
+];
 
 // Página de Mantenimiento de Perfiles: dos pestañas independientes ("Ver Perfiles" y
 // "Asignar"). Cada pestaña se desmonta al cambiar de tab (no queda oculta con CSS),
@@ -22,14 +28,7 @@ const MantenimientoPerfiles = () => {
         </header>
 
         <div className="maintenance-body">
-          <div className="perfiles-tabs">
-            <button type="button" className={`perfiles-tab ${tab === 'ver' ? 'active' : ''}`} onClick={() => setTab('ver')}>
-              Ver Perfiles
-            </button>
-            <button type="button" className={`perfiles-tab ${tab === 'asignar' ? 'active' : ''}`} onClick={() => setTab('asignar')}>
-              Asignar
-            </button>
-          </div>
+          <Tabs tabs={TABS} active={tab} onChange={setTab} />
 
           {tab === 'ver' ? <ResumenPerfilesTab /> : <AsignarPerfilTab />}
         </div>

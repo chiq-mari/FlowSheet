@@ -58,6 +58,8 @@ class Actividades {
             throw new Error('Esta actividad no está asignada a su usuario.');
         }
 
+        const { proyect_id: proyectId, assignment_name: assignmentName } = ownershipRows[0];
+
         const insertSql = global.global_db.getSentence('business', 'insertNotification');
         const inserted = await global.global_db.exeQuery(insertSql, [
             user_assignment_id,
@@ -66,7 +68,10 @@ class Actividades {
             observation || null,
             notification_time,
             total_hours_spent
-        ]);
+        ], {
+            description: `Registro de avance (${progress_percentage}%) en actividad "${assignmentName}"`,
+            proyectId,
+        });
 
         return { notification: inserted[0] };
     }
@@ -108,7 +113,10 @@ class Actividades {
 
         // 1. Insertar actividad en la tabla assignment
         const insertActSql = global.global_db.getSentence('business', 'insertActivity');
-        const actRows = await global.global_db.exeQuery(insertActSql, [name, statusId]);
+        const actRows = await global.global_db.exeQuery(insertActSql, [name, statusId], {
+            description: `Creación de actividad: ${name}`,
+            proyectId: projectId,
+        });
         if (actRows.length === 0) {
             throw new Error('No se pudo crear el registro de la actividad.');
         }
@@ -132,7 +140,7 @@ class Actividades {
 
         // 3. Crear el vínculo en user_assignment
         const insertLinkSql = global.global_db.getSentence('business', 'insertUserAssignment');
-        await global.global_db.exeQuery(insertLinkSql, [pruId, newActivity.id]);
+        await global.global_db.exeQuery(insertLinkSql, [pruId, newActivity.id], { proyectId: projectId });
 
         return newActivity;
     }
@@ -169,7 +177,7 @@ class Actividades {
      * Elimina una o más actividades y limpia en cascada las tablas asociadas.
      */
     async deleteActivities(executionParams, userData) {
-        const { activityIds } = executionParams;
+        const { activityIds, projectId } = executionParams;
         if (!Array.isArray(activityIds) || activityIds.length === 0) {
             throw new Error('Se debe especificar una lista de IDs de actividades a eliminar.');
         }
@@ -179,9 +187,12 @@ class Actividades {
         const sqlDeleteActivity = global.global_db.getSentence('business', 'deleteActivity');
 
         for (const activityId of activityIds) {
-            await global.global_db.exeQuery(sqlDeleteNotifications, [activityId]);
-            await global.global_db.exeQuery(sqlDeleteUserAssignments, [activityId]);
-            await global.global_db.exeQuery(sqlDeleteActivity, [activityId]);
+            await global.global_db.exeQuery(sqlDeleteNotifications, [activityId], { proyectId: projectId });
+            await global.global_db.exeQuery(sqlDeleteUserAssignments, [activityId], { proyectId: projectId });
+            await global.global_db.exeQuery(sqlDeleteActivity, [activityId], {
+                description: 'Eliminación de actividad',
+                proyectId: projectId,
+            });
         }
 
         return { success: true };
@@ -205,7 +216,7 @@ class Actividades {
      * Asigna un miembro (proyect_role_user) a una actividad (assignment).
      */
     async assignMember(executionParams, userData) {
-        const { activityId, proyectRoleUserId } = executionParams;
+        const { activityId, proyectRoleUserId, projectId } = executionParams;
         if (!activityId || !proyectRoleUserId) {
             throw new Error('El ID de actividad y de rol de usuario en proyecto son requeridos.');
         }
@@ -218,7 +229,10 @@ class Actividades {
         }
 
         const sql = global.global_db.getSentence('business', 'insertUserAssignment');
-        const rows = await global.global_db.exeQuery(sql, [proyectRoleUserId, activityId]);
+        const rows = await global.global_db.exeQuery(sql, [proyectRoleUserId, activityId], {
+            description: 'Asignación de miembro a actividad',
+            proyectId: projectId,
+        });
         return { success: true, userAssignmentId: rows[0]?.id };
     }
 
@@ -226,18 +240,21 @@ class Actividades {
      * Remueve la asignación de un miembro en una actividad.
      */
     async unassignMember(executionParams, userData) {
-        const { userAssignmentId } = executionParams;
+        const { userAssignmentId, projectId } = executionParams;
         if (!userAssignmentId) {
             throw new Error('El ID de asignación (user_assignment_id) es requerido.');
         }
 
         // 1. Limpiar notificaciones de avance para esta asignación específica
         const cleanNotifSql = global.global_db.getSentence('business', 'deleteNotificationsByUserAssignment');
-        await global.global_db.exeQuery(cleanNotifSql, [userAssignmentId]);
+        await global.global_db.exeQuery(cleanNotifSql, [userAssignmentId], { proyectId: projectId });
 
         // 2. Eliminar la asignación de usuario
         const sql = global.global_db.getSentence('business', 'deleteUserAssignment');
-        await global.global_db.exeQuery(sql, [userAssignmentId]);
+        await global.global_db.exeQuery(sql, [userAssignmentId], {
+            description: 'Remoción de miembro de actividad',
+            proyectId: projectId,
+        });
 
         return { success: true };
     }

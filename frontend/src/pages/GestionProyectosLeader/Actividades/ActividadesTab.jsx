@@ -102,7 +102,7 @@ export function ActividadesTab() {
     try {
       if (id) {
         // Edit activity
-        await ejecutarMetodo('Hojas de Tiempo', 'Actividades', 'updateActivity', { activityId: id, name, statusId });
+        await ejecutarMetodo('Hojas de Tiempo', 'Actividades', 'updateActivity', { activityId: id, name, statusId, projectId: selectedProjectId });
       } else {
         // Create activity
         await ejecutarMetodo('Hojas de Tiempo', 'Actividades', 'insertActivity', { projectId: selectedProjectId, name, statusId });
@@ -118,7 +118,7 @@ export function ActividadesTab() {
   const handleDeleteConfirm = async () => {
     try {
       if (checkedIds.length > 0) {
-        await ejecutarMetodo('Hojas de Tiempo', 'Actividades', 'deleteActivities', { activityIds: checkedIds });
+        await ejecutarMetodo('Hojas de Tiempo', 'Actividades', 'deleteActivities', { activityIds: checkedIds, projectId: selectedProjectId });
         setIsDeleteConfirmOpen(false);
         setCheckedIds([]);
         fetchProjectData();
@@ -133,7 +133,8 @@ export function ActividadesTab() {
     try {
       await ejecutarMetodo('Hojas de Tiempo', 'Actividades', 'assignMember', {
         activityId: selectedActivity.id,
-        proyectRoleUserId
+        proyectRoleUserId,
+        projectId: selectedProjectId
       });
       fetchProjectData();
     } catch (err) {
@@ -147,7 +148,7 @@ export function ActividadesTab() {
     try {
       const confirmUnassign = window.confirm('¿Está seguro de que desea remover a este encargado de la actividad?');
       if (confirmUnassign) {
-        await ejecutarMetodo('Hojas de Tiempo', 'Actividades', 'unassignMember', { userAssignmentId });
+        await ejecutarMetodo('Hojas de Tiempo', 'Actividades', 'unassignMember', { userAssignmentId, projectId: selectedProjectId });
         fetchProjectData();
       }
     } catch (err) {

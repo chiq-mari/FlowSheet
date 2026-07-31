@@ -80,12 +80,12 @@ const MantenimientoPermisos = () => {
     setActionError(null);
   };
 
-  const handleAgregar = async ({ profileId, optionId, methodId }) => {
+  const handleAgregar = async ({ profileId, optionId, methodId, profileDe, optionDe, methodDe }) => {
     try {
       if (tab === 'opciones') {
-        await asignarOpcion(profileId, optionId);
+        await asignarOpcion(profileId, optionId, profileDe, optionDe);
       } else {
-        await asignarMetodo(profileId, methodId);
+        await asignarMetodo(profileId, methodId, profileDe, methodDe);
       }
       closeModal();
     } catch (err) {

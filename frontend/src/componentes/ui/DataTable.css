@@ -162,6 +162,21 @@
   background-color: #8b5cf6;
 }
 
+.pill-amber {
+  background-color: #fffbeb;
+  color: #b45309;
+}
+
+.pill-amber .pill-dot {
+  background-color: #f59e0b;
+}
+
+/* Variante monoespaciada (ej. columna ACCIÓN de Auditoría: INSERT/UPDATE/DELETE) */
+.pill-mono {
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.02em;
+}
+
 /* Variante "badge" con borde, sin relleno (ej. nombre de método: INSERT/SELECT/...) */
 .pill-outline {
   background-color: #ffffff;

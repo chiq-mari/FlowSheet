@@ -48,8 +48,10 @@ export function usePermisos() {
     await Promise.all([fetchResumen(), fetchGrid(tab, profileFilter)]);
   }, [fetchResumen, fetchGrid, tab, profileFilter]);
 
-  const asignarOpcion = async (profileId, optionId) => {
-    await ejecutarMetodo(SUB_SYSTEM, OBJECT_PERMISO, 'asignarOpcion', { profileId, optionId });
+  // profileDe/optionDe/methodDe son opcionales: solo se usan para que el
+  // backend arme una descripción de auditoría legible (ver permiso.js).
+  const asignarOpcion = async (profileId, optionId, profileDe, optionDe) => {
+    await ejecutarMetodo(SUB_SYSTEM, OBJECT_PERMISO, 'asignarOpcion', { profileId, optionId, profileDe, optionDe });
     await refetchAll();
   };
 
@@ -58,8 +60,8 @@ export function usePermisos() {
     await refetchAll();
   };
 
-  const asignarMetodo = async (profileId, methodId) => {
-    await ejecutarMetodo(SUB_SYSTEM, OBJECT_PERMISO, 'asignarMetodo', { profileId, methodId });
+  const asignarMetodo = async (profileId, methodId, profileDe, methodDe) => {
+    await ejecutarMetodo(SUB_SYSTEM, OBJECT_PERMISO, 'asignarMetodo', { profileId, methodId, profileDe, methodDe });
     await refetchAll();
   };
 

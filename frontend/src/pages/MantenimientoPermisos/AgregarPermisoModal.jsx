@@ -113,10 +113,15 @@ const AgregarPermisoModal = ({ tab, perfiles, accent, onClose, onSubmit, error }
     e.preventDefault();
     if (!canSubmit) return;
     setSubmitting(true);
+    // Se mandan también los nombres (ya visibles en este mismo picker) para que
+    // el backend arme una descripción de auditoría legible sin joins extra.
+    const profileDe = perfiles.find((p) => p.profile_id === profileId)?.profile_de;
     if (isOpciones) {
-      await onSubmit({ profileId, optionId });
+      const optionDe = opciones.find((o) => o.option_id === optionId)?.option_de;
+      await onSubmit({ profileId, optionId, profileDe, optionDe });
     } else {
-      await onSubmit({ profileId, methodId });
+      const methodDe = metodos.find((m) => m.method_id === methodId)?.method_de;
+      await onSubmit({ profileId, methodId, profileDe, methodDe });
     }
     setSubmitting(false);
   };

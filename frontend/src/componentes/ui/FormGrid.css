@@ -27,6 +27,13 @@
   text-transform: uppercase;
 }
 
+/* Aclaración corta bajo un campo (ej. por qué un <select> quedó deshabilitado) */
+.form-field-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
 .form-field input,
 .form-field select {
   padding: 0.6rem 0.75rem;

@@ -2,6 +2,8 @@ import React from 'react';
 import MantenimientoPersonas from './MantenimientoPersonas/MantenimientoPersonas';
 import MantenimientoUsuarios from './MantenimientoUsuarios/MantenimientoUsuarios';
 import MantenimientoCargos from './MantenimientoCargos/MantenimientoCargos';
+import MantenimientoSubsistemas from './MantenimientoSubsistemas/MantenimientoSubsistemas';
+import MantenimientoOpciones from './MantenimientoOpciones/MantenimientoOpciones';
 import LeaderDashboard from './LeaderDashboard';
 
 // Selector dinámico para la opción Dashboard según el perfil seleccionado
@@ -31,6 +33,8 @@ const pageRegistry = {
   'personas': MantenimientoPersonas,
   'usuarios': MantenimientoUsuarios,
   'cargos': MantenimientoCargos,
+  'subsistemas': MantenimientoSubsistemas,
+  'opciones': MantenimientoOpciones,
   'dashboard': DashboardSelector,
 };
 

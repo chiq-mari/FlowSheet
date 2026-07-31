@@ -433,5 +433,82 @@ export const sentences = {
       FROM status_user
       ORDER BY status_user_id ASC;
     `
+  },
+
+  // Subsistema: agrupa Objetos/Opciones del árbol de permisos (ver sub_system en el ERD).
+  // Se alias sub_system_id/sub_system_de a id/name para reusar la misma forma que Cargo.
+  subSystem: {
+    getAll: `
+      SELECT
+        sub_system_id AS id,
+        sub_system_de AS name
+      FROM sub_system
+      WHERE ($1::text IS NULL OR $1 = '' OR LOWER(sub_system_de) LIKE LOWER('%' || $1 || '%'))
+      ORDER BY sub_system_de ASC;
+    `,
+
+    create: `
+      INSERT INTO sub_system (sub_system_de)
+      VALUES ($1)
+      RETURNING sub_system_id AS id, sub_system_de AS name;
+    `,
+
+    update: `
+      UPDATE sub_system
+      SET sub_system_de = $1
+      WHERE sub_system_id = $2
+      RETURNING sub_system_id AS id, sub_system_de AS name;
+    `,
+
+    delete: `
+      DELETE FROM sub_system
+      WHERE sub_system_id = ANY($1::uuid[]);
+    `
+  },
+
+  // Opción: fila del árbol de menú (option), mostrada junto al nombre de su Subsistema.
+  // parent_option_id sí es editable: permite anidar una opción bajo otra (ej. "Subsistemas"
+  // bajo "Mantenimiento"). Queda NULL cuando la opción es raíz.
+  option: {
+    getAll: `
+      SELECT
+        o.option_id,
+        o.option_de,
+        o.sub_system_id,
+        s.sub_system_de,
+        o.parent_option_id
+      FROM option o
+      INNER JOIN sub_system s ON o.sub_system_id = s.sub_system_id
+      WHERE
+        ($1::uuid IS NULL OR o.sub_system_id = $1)
+        AND ($2::text IS NULL OR $2 = '' OR LOWER(o.option_de) LIKE LOWER('%' || $2 || '%'))
+      ORDER BY s.sub_system_de ASC, o.option_de ASC;
+    `,
+
+    create: `
+      INSERT INTO option (option_de, sub_system_id, parent_option_id)
+      VALUES ($1, $2, $3)
+      RETURNING option_id, option_de, sub_system_id, parent_option_id;
+    `,
+
+    update: `
+      UPDATE option
+      SET option_de = $1, sub_system_id = $2, parent_option_id = $3
+      WHERE option_id = $4
+      RETURNING option_id, option_de, sub_system_id, parent_option_id;
+    `,
+
+    // Cuenta las opciones que cuelgan de $1 (usado para bloquear que una opción
+    // que ya es padre reciba a su vez un padre, lo que crearía un 3er nivel).
+    countChildren: `
+      SELECT COUNT(*)::int AS count
+      FROM option
+      WHERE parent_option_id = $1;
+    `,
+
+    delete: `
+      DELETE FROM option
+      WHERE option_id = ANY($1::uuid[]);
+    `
   }
 };

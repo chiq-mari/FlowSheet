@@ -4,9 +4,10 @@ import './SearchToolbar.css';
 // Barra de herramientas genérica: búsqueda por texto + acciones de eliminar/crear.
 // Puramente presentacional — cualquier pantalla de mantenimiento (Persona, Usuario, ...)
 // la reusa pasándole solo el placeholder y los callbacks.
-const SearchToolbar = ({ value, onChange, placeholder = 'Buscar...', hasSelection, onDeleteClick, onCreateClick }) => {
+const SearchToolbar = ({ value, onChange, placeholder = 'Buscar...', hasSelection, onDeleteClick, onCreateClick, filters }) => {
   return (
     <div className="search-toolbar">
+      {filters}
       <div className="search-toolbar-input">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />

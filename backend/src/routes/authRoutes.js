@@ -43,6 +43,7 @@ router.get('/current-user', (req, res) => {
         // Le enviamos al front únicamente lo que necesita para renderizar la vista
         return res.json({
             success: true,
+            user_id: userData.user_id,
             person_na: userData.person_na,
             user_profiles: userData.user_profiles
         });

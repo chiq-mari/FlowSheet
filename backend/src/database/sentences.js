@@ -355,6 +355,87 @@ export const sentences = {
             )
             VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING id, user_assignment_id, date, notification_time, progress_percentage, total_hours_spent, observation;
+        `,
+
+        // --- Chat por proyecto ("Mis Chats") ---
+
+        // Chats (uno por proyecto) del usuario autenticado, con último mensaje y cantidad de miembros
+        getMemberChats: `
+            SELECT
+                p.id AS proyect_id,
+                p.name AS proyect_name,
+                mc.member_count,
+                lm.message_text AS last_message_text,
+                lm.sent_at AS last_message_at,
+                lm.user_id AS last_message_user_id,
+                lm.person_na AS last_message_person_na
+            FROM proyect p
+            INNER JOIN (
+                SELECT DISTINCT pr.proyect_id
+                FROM proyect_role pr
+                INNER JOIN proyect_role_user pru ON pr.id = pru.proyect_role_id
+                WHERE pru.user_id = $1
+            ) mine ON mine.proyect_id = p.id
+            LEFT JOIN LATERAL (
+                SELECT COUNT(DISTINCT pru2.user_id) AS member_count
+                FROM proyect_role pr2
+                INNER JOIN proyect_role_user pru2 ON pr2.id = pru2.proyect_role_id
+                WHERE pr2.proyect_id = p.id
+            ) mc ON true
+            LEFT JOIN LATERAL (
+                SELECT cm.message_text, cm.sent_at, cm.user_id, pe.person_na
+                FROM chat_message cm
+                INNER JOIN "user" u ON cm.user_id = u.user_id
+                INNER JOIN person pe ON u.person_id = pe.person_id
+                WHERE cm.proyect_id = p.id
+                ORDER BY cm.sent_at DESC
+                LIMIT 1
+            ) lm ON true
+            ORDER BY p.name ASC;
+        `,
+
+        // Verifica que el usuario pertenezca al proyecto (cualquier rol) antes de leer/escribir su chat
+        checkProyectMembership: `
+            SELECT 1
+            FROM proyect_role pr
+            INNER JOIN proyect_role_user pru ON pr.id = pru.proyect_role_id
+            WHERE pr.proyect_id = $1 AND pru.user_id = $2
+            LIMIT 1;
+        `,
+
+        // Miembros del proyecto (para el encabezado del chat: avatares + "N miembros")
+        getProyectMembers: `
+            SELECT DISTINCT u.user_id, u.user_na, pe.person_na, pe.person_ln
+            FROM proyect_role pr
+            INNER JOIN proyect_role_user pru ON pr.id = pru.proyect_role_id
+            INNER JOIN "user" u ON pru.user_id = u.user_id
+            INNER JOIN person pe ON u.person_id = pe.person_id
+            WHERE pr.proyect_id = $1
+            ORDER BY u.user_na ASC;
+        `,
+
+        // Historial de mensajes de un proyecto
+        getChatMessages: `
+            SELECT
+                cm.chat_message_id AS id,
+                cm.message_text,
+                cm.sent_at,
+                cm.user_id,
+                u.user_na,
+                pe.person_na,
+                pe.person_ln
+            FROM chat_message cm
+            INNER JOIN "user" u ON cm.user_id = u.user_id
+            INNER JOIN person pe ON u.person_id = pe.person_id
+            WHERE cm.proyect_id = $1
+            ORDER BY cm.sent_at ASC;
+        `,
+
+        // Inserta un mensaje nuevo en el chat de un proyecto
+        insertChatMessage: `
+            INSERT INTO chat_message (proyect_id, user_id, message_text)
+            VALUES ($1, $2, $3)
+            RETURNING chat_message_id AS id, proyect_id, user_id, message_text, sent_at;
         `
     }
     ,

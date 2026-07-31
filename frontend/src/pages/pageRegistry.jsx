@@ -4,7 +4,7 @@ import LeaderDashboard from './LeaderDashboard';
 import MemberDashboard from './Member/MemberDashboard';
 import MemberActivities from './Member/MemberActivities';
 import MemberReports from './Member/MemberReports';
-import MemberChatsPlaceholder from './Member/MemberChatsPlaceholder';
+import MemberChats from './Member/MemberChats';
 
 // Placeholder genérico para cuando un perfil válido todavía no tiene pantalla implementada
 // para esa opción (ej. Admin viendo "Proyectos", que hoy es exclusivo de Miembro).
@@ -50,10 +50,10 @@ const ReportesSelector = ({ activeProfile }) => {
   return <InDevelopmentPlaceholder optionName="Reportes" activeProfile={activeProfile} />;
 };
 
-const MisChatsSelector = ({ activeProfile }) => {
+const MisChatsSelector = ({ user, activeProfile }) => {
   const profileDe = activeProfile?.profile_de?.toLowerCase() || '';
   if (profileDe.includes('miembro')) {
-    return <MemberChatsPlaceholder />;
+    return <MemberChats user={user} />;
   }
   return <InDevelopmentPlaceholder optionName="Mis Chats" activeProfile={activeProfile} />;
 };

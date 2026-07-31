@@ -1,5 +1,12 @@
 import React from 'react';
 import MantenimientoPersonas from './MantenimientoPersonas/MantenimientoPersonas';
+import MantenimientoUsuarios from './MantenimientoUsuarios/MantenimientoUsuarios';
+import MantenimientoCargos from './MantenimientoCargos/MantenimientoCargos';
+import MantenimientoSubsistemas from './MantenimientoSubsistemas/MantenimientoSubsistemas';
+import MantenimientoOpciones from './MantenimientoOpciones/MantenimientoOpciones';
+import MantenimientoObjetos from './MantenimientoObjetos/MantenimientoObjetos';
+import MantenimientoMetodos from './MantenimientoMetodos/MantenimientoMetodos';
+import MantenimientoPerfiles from './MantenimientoPerfiles/MantenimientoPerfiles';
 import LeaderDashboard from './LeaderDashboard';
 import GestionProyectosLeader from './GestionProyectosLeader/GestionProyectosLeader';
 
@@ -47,11 +54,27 @@ const ProyectosSelector = ({ user, activeProfile }) => {
 // nunca necesita conocer los componentes concretos de cada feature.
 const pageRegistry = {
   'personas': MantenimientoPersonas,
+  'usuarios': MantenimientoUsuarios,
+  'cargos': MantenimientoCargos,
+  'subsistemas': MantenimientoSubsistemas,
+  'opciones': MantenimientoOpciones,
+  'objetos': MantenimientoObjetos,
+  'metodos': MantenimientoMetodos,
+  'perfiles': MantenimientoPerfiles,
   'dashboard': DashboardSelector,
   'proyectos': ProyectosSelector,
 };
 
+// Quita tildes (ej. "Métodos" -> "metodos") para que el nombre de la opción en la BD
+// no tenga que coincidir carácter por carácter con la clave del registro.
+const normalizar = (texto) =>
+  texto
+    .toLowerCase()
+    .trim()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '');
+
 export function resolveDashboardPage(optionDe) {
   if (!optionDe) return null;
-  return pageRegistry[optionDe.toLowerCase().trim()] || null;
+  return pageRegistry[normalizar(optionDe)] || null;
 }

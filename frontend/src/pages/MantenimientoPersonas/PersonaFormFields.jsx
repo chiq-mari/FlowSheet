@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCargos } from '../../hooks/useCargos';
-import './PersonaFormFields.css';
+import '../../componentes/ui/FormGrid.css';
 
 // Campos de formulario compartidos por Crear y Editar Persona.
 // Es puramente controlado: recibe los valores actuales y notifica cambios,
@@ -11,8 +11,8 @@ const PersonaFormFields = ({ values, onFieldChange, disabled = false }) => {
   const handleChange = (field) => (e) => onFieldChange(field, e.target.value);
 
   return (
-    <div className="persona-form-grid">
-      <div className="persona-form-field">
+    <div className="form-grid">
+      <div className="form-field">
         <label>Cédula (CI)</label>
         <input
           type="text"
@@ -23,7 +23,7 @@ const PersonaFormFields = ({ values, onFieldChange, disabled = false }) => {
         />
       </div>
 
-      <div className="persona-form-field">
+      <div className="form-field">
         <label>Nombre</label>
         <input
           type="text"
@@ -34,7 +34,7 @@ const PersonaFormFields = ({ values, onFieldChange, disabled = false }) => {
         />
       </div>
 
-      <div className="persona-form-field">
+      <div className="form-field">
         <label>Apellido</label>
         <input
           type="text"
@@ -45,7 +45,7 @@ const PersonaFormFields = ({ values, onFieldChange, disabled = false }) => {
         />
       </div>
 
-      <div className="persona-form-field persona-form-field-full">
+      <div className="form-field form-field-full">
         <label>Correo</label>
         <input
           type="email"
@@ -56,7 +56,7 @@ const PersonaFormFields = ({ values, onFieldChange, disabled = false }) => {
         />
       </div>
 
-      <div className="persona-form-field persona-form-field-full">
+      <div className="form-field form-field-full">
         <label>Cargo</label>
         <select
           value={values.chargeId}

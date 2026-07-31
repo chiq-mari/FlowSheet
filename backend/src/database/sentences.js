@@ -333,18 +333,317 @@ export const sentences = {
     // 5. Eliminar persona (icono papelera - soporta ID único o array vía ANY)
     delete: `
       DELETE FROM person
-      WHERE person_id = ANY($1::int[]);
+      WHERE person_id = ANY($1::uuid[]);
     `
   },
 
-  // Extra necesario para llenar el <select> o combobox de Cargos en el formulario de creación/edición
+  // Cargo: usado tanto por el <select> de Persona como por su propia pantalla de mantenimiento
   charge: {
+    // Admite búsqueda opcional por nombre; si no se manda término, devuelve todos (uso del combobox).
     getAll: `
-      SELECT 
-        id, 
-        name 
-      FROM charge 
+      SELECT
+        id,
+        name
+      FROM charge
+      WHERE ($1::text IS NULL OR $1 = '' OR LOWER(name) LIKE LOWER('%' || $1 || '%'))
       ORDER BY name ASC;
+    `,
+
+    create: `
+      INSERT INTO charge (name)
+      VALUES ($1)
+      RETURNING id, name;
+    `,
+
+    update: `
+      UPDATE charge
+      SET name = $1
+      WHERE id = $2
+      RETURNING id, name;
+    `,
+
+    delete: `
+      DELETE FROM charge
+      WHERE id = ANY($1::uuid[]);
+    `
+  },
+
+  usuario: {
+    // 1. Obtener todos los usuarios con los datos de su Persona vinculada (para la tabla principal)
+    // Permite filtrar opcionalmente por username o por nombre/apellido/CI de la persona
+    getAll: `
+      SELECT
+        u.user_id,
+        u.user_na,
+        u.user_pw,
+        u.user_email,
+        u.status_user_id,
+        su.status_user_de,
+        u.person_id,
+        p.person_ci,
+        p.person_na,
+        p.person_ln
+      FROM "user" u
+      INNER JOIN status_user su ON u.status_user_id = su.status_user_id
+      LEFT JOIN person p ON u.person_id = p.person_id
+      WHERE
+        ($1::text IS NULL OR $1 = '' OR
+         LOWER(u.user_na) LIKE LOWER('%' || $1 || '%') OR
+         LOWER(p.person_ci) LIKE LOWER('%' || $1 || '%') OR
+         LOWER(p.person_na) LIKE LOWER('%' || $1 || '%') OR
+         LOWER(p.person_ln) LIKE LOWER('%' || $1 || '%'))
+      ORDER BY u.user_id DESC;
+    `,
+
+    // 2. Crear usuario (+)
+    create: `
+      INSERT INTO "user" (
+        user_na,
+        user_pw,
+        user_email,
+        status_user_id,
+        person_id
+      )
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING user_id, user_na, user_pw, user_email, status_user_id, person_id;
+    `,
+
+    // 3. Actualizar usuario (icono lápiz)
+    update: `
+      UPDATE "user"
+      SET
+        user_na = $1,
+        user_pw = $2,
+        user_email = $3,
+        status_user_id = $4,
+        person_id = $5
+      WHERE user_id = $6
+      RETURNING user_id, user_na, user_pw, user_email, status_user_id, person_id;
+    `,
+
+    // 4. Eliminar usuario (icono papelera - soporta ID único o array vía ANY)
+    delete: `
+      DELETE FROM "user"
+      WHERE user_id = ANY($1::uuid[]);
+    `,
+
+    // 5. Catálogo de estados para el <select> de Status en el formulario
+    getEstados: `
+      SELECT status_user_id, status_user_de
+      FROM status_user
+      ORDER BY status_user_id ASC;
+    `
+  },
+
+  // Subsistema: agrupa Objetos/Opciones del árbol de permisos (ver sub_system en el ERD).
+  // Se alias sub_system_id/sub_system_de a id/name para reusar la misma forma que Cargo.
+  subSystem: {
+    getAll: `
+      SELECT
+        sub_system_id AS id,
+        sub_system_de AS name
+      FROM sub_system
+      WHERE ($1::text IS NULL OR $1 = '' OR LOWER(sub_system_de) LIKE LOWER('%' || $1 || '%'))
+      ORDER BY sub_system_de ASC;
+    `,
+
+    create: `
+      INSERT INTO sub_system (sub_system_de)
+      VALUES ($1)
+      RETURNING sub_system_id AS id, sub_system_de AS name;
+    `,
+
+    update: `
+      UPDATE sub_system
+      SET sub_system_de = $1
+      WHERE sub_system_id = $2
+      RETURNING sub_system_id AS id, sub_system_de AS name;
+    `,
+
+    delete: `
+      DELETE FROM sub_system
+      WHERE sub_system_id = ANY($1::uuid[]);
+    `
+  },
+
+  // Opción: fila del árbol de menú (option), mostrada junto al nombre de su Subsistema.
+  // parent_option_id sí es editable: permite anidar una opción bajo otra (ej. "Subsistemas"
+  // bajo "Mantenimiento"). Queda NULL cuando la opción es raíz.
+  option: {
+    getAll: `
+      SELECT
+        o.option_id,
+        o.option_de,
+        o.sub_system_id,
+        s.sub_system_de,
+        o.parent_option_id
+      FROM option o
+      INNER JOIN sub_system s ON o.sub_system_id = s.sub_system_id
+      WHERE
+        ($1::uuid IS NULL OR o.sub_system_id = $1)
+        AND ($2::text IS NULL OR $2 = '' OR LOWER(o.option_de) LIKE LOWER('%' || $2 || '%'))
+      ORDER BY s.sub_system_de ASC, o.option_de ASC;
+    `,
+
+    create: `
+      INSERT INTO option (option_de, sub_system_id, parent_option_id)
+      VALUES ($1, $2, $3)
+      RETURNING option_id, option_de, sub_system_id, parent_option_id;
+    `,
+
+    update: `
+      UPDATE option
+      SET option_de = $1, sub_system_id = $2, parent_option_id = $3
+      WHERE option_id = $4
+      RETURNING option_id, option_de, sub_system_id, parent_option_id;
+    `,
+
+    // Cuenta las opciones que cuelgan de $1 (usado para bloquear que una opción
+    // que ya es padre reciba a su vez un padre, lo que crearía un 3er nivel).
+    countChildren: `
+      SELECT COUNT(*)::int AS count
+      FROM option
+      WHERE parent_option_id = $1;
+    `,
+
+    delete: `
+      DELETE FROM option
+      WHERE option_id = ANY($1::uuid[]);
+    `
+  },
+
+  // Objeto: la clase de negocio registrada para reflexión (Security.exeMethod importa
+  // ./${object_de.toLowerCase()}.js). Mostrado junto al nombre de su Subsistema.
+  object: {
+    getAll: `
+      SELECT
+        o.object_id,
+        o.object_de,
+        o.sub_system_id,
+        s.sub_system_de
+      FROM object o
+      INNER JOIN sub_system s ON o.sub_system_id = s.sub_system_id
+      WHERE
+        ($1::uuid IS NULL OR o.sub_system_id = $1)
+        AND ($2::text IS NULL OR $2 = '' OR LOWER(o.object_de) LIKE LOWER('%' || $2 || '%'))
+      ORDER BY s.sub_system_de ASC, o.object_de ASC;
+    `,
+
+    create: `
+      INSERT INTO object (object_de, sub_system_id)
+      VALUES ($1, $2)
+      RETURNING object_id, object_de, sub_system_id;
+    `,
+
+    update: `
+      UPDATE object
+      SET object_de = $1, sub_system_id = $2
+      WHERE object_id = $3
+      RETURNING object_id, object_de, sub_system_id;
+    `,
+
+    delete: `
+      DELETE FROM object
+      WHERE object_id = ANY($1::uuid[]);
+    `
+  },
+
+  // Método: acción concreta de un Objeto, invocada por reflexión desde Security.exeMethod.
+  // Se filtra opcionalmente por subsistema y por objeto (dropdowns en cascada del mockup).
+  method: {
+    getAll: `
+      SELECT
+        m.method_id,
+        m.method_de,
+        m.object_id,
+        o.object_de,
+        o.sub_system_id,
+        s.sub_system_de
+      FROM method m
+      INNER JOIN object o ON m.object_id = o.object_id
+      INNER JOIN sub_system s ON o.sub_system_id = s.sub_system_id
+      WHERE
+        ($1::uuid IS NULL OR o.sub_system_id = $1)
+        AND ($2::uuid IS NULL OR m.object_id = $2)
+        AND ($3::text IS NULL OR $3 = '' OR LOWER(m.method_de) LIKE LOWER('%' || $3 || '%'))
+      ORDER BY s.sub_system_de ASC, o.object_de ASC, m.method_de ASC;
+    `,
+
+    create: `
+      INSERT INTO method (method_de, object_id)
+      VALUES ($1, $2)
+      RETURNING method_id, method_de, object_id;
+    `,
+
+    update: `
+      UPDATE method
+      SET method_de = $1, object_id = $2
+      WHERE method_id = $3
+      RETURNING method_id, method_de, object_id;
+    `,
+
+    delete: `
+      DELETE FROM method
+      WHERE method_id = ANY($1::uuid[]);
+    `
+  },
+
+  // Perfil: no es un CRUD sobre la tabla profile en sí (esos ya existen fijos), sino
+  // la gestión de la relación N:M user_profile — resumen de conteos, la grilla de
+  // usuarios+perfiles, y asignar/quitar un perfil a un usuario puntual.
+  perfil: {
+    // Tarjetas de la pestaña "Ver Perfiles": cuántos usuarios tiene cada perfil.
+    getResumen: `
+      SELECT
+        p.profile_id,
+        p.profile_de,
+        COUNT(up.user_id)::int AS user_count
+      FROM profile p
+      LEFT JOIN user_profile up ON up.profile_id = p.profile_id
+      GROUP BY p.profile_id, p.profile_de
+      ORDER BY p.profile_de ASC;
+    `,
+
+    // Grilla de la pestaña "Ver Perfiles": cada usuario con sus perfiles asignados
+    // como arreglo JSON (evita el problema N+1 de una consulta por usuario).
+    getUsuarios: `
+      SELECT
+        u.user_id,
+        u.user_na,
+        u.user_email,
+        COALESCE(
+          json_agg(
+            json_build_object('profile_id', p.profile_id, 'profile_de', p.profile_de)
+            ORDER BY p.profile_de ASC
+          ) FILTER (WHERE p.profile_id IS NOT NULL),
+          '[]'
+        ) AS perfiles
+      FROM "user" u
+      LEFT JOIN user_profile up ON up.user_id = u.user_id
+      LEFT JOIN profile p ON up.profile_id = p.profile_id
+      GROUP BY u.user_id, u.user_na, u.user_email
+      ORDER BY u.user_na ASC;
+    `,
+
+    // Pestaña "Asignar": perfiles ya asignados al usuario elegido en el buscador.
+    getPerfilesPorUsuario: `
+      SELECT p.profile_id, p.profile_de
+      FROM user_profile up
+      INNER JOIN profile p ON up.profile_id = p.profile_id
+      WHERE up.user_id = $1
+      ORDER BY p.profile_de ASC;
+    `,
+
+    asignarPerfil: `
+      INSERT INTO user_profile (user_id, profile_id)
+      VALUES ($1, $2)
+      ON CONFLICT DO NOTHING
+      RETURNING user_profile_id, user_id, profile_id;
+    `,
+
+    quitarPerfil: `
+      DELETE FROM user_profile
+      WHERE user_id = $1 AND profile_id = $2;
     `
   },
   

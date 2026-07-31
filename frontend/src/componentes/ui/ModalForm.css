@@ -1,0 +1,77 @@
+/* src/componentes/ui/ModalForm.css */
+/* Estilos compartidos por el contenido de cualquier modal de Crear/Editar/Eliminar
+   (Persona, Usuario, etc.): el layout del form, la fila de botones y el banner
+   de error son siempre iguales, solo cambian los campos concretos de cada feature. */
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.modal-form-error {
+  margin: 0;
+  padding: 0.6rem 0.85rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.modal-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.modal-form-actions button {
+  padding: 0.55rem 1.1rem;
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.modal-form-actions .btn-secondary {
+  background-color: #ffffff;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+.modal-form-actions .btn-secondary:hover {
+  background-color: #f1f5f9;
+}
+
+.modal-form-actions .btn-primary {
+  background-color: #131b2e;
+  color: #ffffff;
+}
+
+.modal-form-actions .btn-primary:hover {
+  background-color: #1f2a44;
+}
+
+.modal-form-actions .btn-danger {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+.modal-form-actions .btn-danger:hover {
+  background-color: #b91c1c;
+}
+
+.modal-form-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.confirm-delete-body p {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #334155;
+}

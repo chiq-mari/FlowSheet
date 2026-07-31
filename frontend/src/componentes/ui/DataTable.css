@@ -153,6 +153,15 @@
   background-color: #ef4444;
 }
 
+/* Variante "badge" con borde, sin relleno (ej. nombre de método: INSERT/SELECT/...) */
+.pill-outline {
+  background-color: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.02em;
+}
+
 /* Checkbox circular, estilo "radio" custom */
 .row-checkbox {
   width: 1.15rem;

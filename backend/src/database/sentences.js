@@ -510,5 +510,81 @@ export const sentences = {
       DELETE FROM option
       WHERE option_id = ANY($1::uuid[]);
     `
+  },
+
+  // Objeto: la clase de negocio registrada para reflexión (Security.exeMethod importa
+  // ./${object_de.toLowerCase()}.js). Mostrado junto al nombre de su Subsistema.
+  object: {
+    getAll: `
+      SELECT
+        o.object_id,
+        o.object_de,
+        o.sub_system_id,
+        s.sub_system_de
+      FROM object o
+      INNER JOIN sub_system s ON o.sub_system_id = s.sub_system_id
+      WHERE
+        ($1::uuid IS NULL OR o.sub_system_id = $1)
+        AND ($2::text IS NULL OR $2 = '' OR LOWER(o.object_de) LIKE LOWER('%' || $2 || '%'))
+      ORDER BY s.sub_system_de ASC, o.object_de ASC;
+    `,
+
+    create: `
+      INSERT INTO object (object_de, sub_system_id)
+      VALUES ($1, $2)
+      RETURNING object_id, object_de, sub_system_id;
+    `,
+
+    update: `
+      UPDATE object
+      SET object_de = $1, sub_system_id = $2
+      WHERE object_id = $3
+      RETURNING object_id, object_de, sub_system_id;
+    `,
+
+    delete: `
+      DELETE FROM object
+      WHERE object_id = ANY($1::uuid[]);
+    `
+  },
+
+  // Método: acción concreta de un Objeto, invocada por reflexión desde Security.exeMethod.
+  // Se filtra opcionalmente por subsistema y por objeto (dropdowns en cascada del mockup).
+  method: {
+    getAll: `
+      SELECT
+        m.method_id,
+        m.method_de,
+        m.object_id,
+        o.object_de,
+        o.sub_system_id,
+        s.sub_system_de
+      FROM method m
+      INNER JOIN object o ON m.object_id = o.object_id
+      INNER JOIN sub_system s ON o.sub_system_id = s.sub_system_id
+      WHERE
+        ($1::uuid IS NULL OR o.sub_system_id = $1)
+        AND ($2::uuid IS NULL OR m.object_id = $2)
+        AND ($3::text IS NULL OR $3 = '' OR LOWER(m.method_de) LIKE LOWER('%' || $3 || '%'))
+      ORDER BY s.sub_system_de ASC, o.object_de ASC, m.method_de ASC;
+    `,
+
+    create: `
+      INSERT INTO method (method_de, object_id)
+      VALUES ($1, $2)
+      RETURNING method_id, method_de, object_id;
+    `,
+
+    update: `
+      UPDATE method
+      SET method_de = $1, object_id = $2
+      WHERE method_id = $3
+      RETURNING method_id, method_de, object_id;
+    `,
+
+    delete: `
+      DELETE FROM method
+      WHERE method_id = ANY($1::uuid[]);
+    `
   }
 };

@@ -736,7 +736,50 @@ export const sentences = {
       WHERE permission_method_id = ANY($1::uuid[]);
     `
   },
-  
+
+  // Uso interno de DBComponent.exeQuery (no se invoca por reflexión ni por
+  // ninguna clase de servicio): inserta la fila de bitácora cuando exeQuery
+  // detecta una mutación (INSERT/UPDATE/DELETE). date/hour los pone el propio
+  // Postgres para no depender del reloj/huso horario del servidor Node.
+  audit: {
+    insertLog: `
+      INSERT INTO audit (user_id, date, hour, action, table_name, description, proyect_id)
+      VALUES ($1, CURRENT_DATE, CURRENT_TIME, $2, $3, $4, $5);
+    `
+  },
+
+  // Pantalla "Auditoría": solo lectura. No crea filas de audit directamente
+  // (esas las inserta automáticamente DBComponent.exeQuery en cada mutación
+  // real del sistema) — solo las consulta, y da el catálogo de proyectos para
+  // el buscador dinámico del filtro.
+  auditoria: {
+    getAll: `
+      SELECT
+        a.action,
+        a.table_name,
+        a.description,
+        u.user_email AS usuario,
+        a.date,
+        a.hour
+      FROM audit a
+      LEFT JOIN "user" u ON a.user_id = u.user_id
+      WHERE (
+        ($1::uuid IS NOT NULL AND a.proyect_id = $1)
+        OR ($1::uuid IS NULL AND a.proyect_id IS NULL)
+      )
+        AND ($2::date IS NULL OR a.date >= $2)
+        AND ($3::date IS NULL OR a.date <= $3)
+      ORDER BY a.date DESC, a.hour DESC;
+    `,
+    buscarProyectos: `
+      SELECT id, name
+      FROM proyect
+      WHERE ($1::text IS NULL OR $1 = '' OR LOWER(name) LIKE LOWER('%' || $1 || '%'))
+      ORDER BY name ASC
+      LIMIT 20;
+    `
+  },
+
   status: {
     getAll: `
       SELECT 
@@ -872,9 +915,11 @@ export const sentences = {
         ORDER BY n.date DESC, n.notification_time DESC;
     `,
     checkAssignmentOwnership: `
-        SELECT ua.id 
+        SELECT ua.id, pr.proyect_id, a.name AS assignment_name
         FROM public.user_assignment ua
+        INNER JOIN public.assignment a ON ua.assignment_id = a.id
         INNER JOIN public.proyect_role_user pru ON ua.proyect_role_user_id = pru.id
+        INNER JOIN public.proyect_role pr ON pru.proyect_role_id = pr.id
         WHERE ua.id = $1 AND pru.user_id = $2;
     `,
     insertNotification: `

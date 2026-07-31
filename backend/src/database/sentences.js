@@ -124,17 +124,22 @@ export const sentences = {
             ORDER BY s.sub_system_de ASC;
         `,
 
-        // Obtiene las opciones y sub-opciones según el perfil ($1 = profile_id) y subsistema ($2 = sub_system_id)
+        // Obtiene las opciones y sub-opciones de un subsistema ($1 = sub_system_id).
+        // A propósito NO filtra por permiso: la opción debe seguir viéndose en el sidebar
+        // aunque el perfil no tenga acceso, para que al hacer clic la "aduana" central
+        // (/toProcess, targetType 'menu') sea quien la rechace y muestre el aviso.
+        // Filtrar acá duplicaría esa validación en dos lugares y, peor, la escondería del
+        // sidebar sin dar ningún aviso al usuario. (Nota: postgres no puede bindear un
+        // parámetro que no aparece en el texto de la query -- "could not determine data
+        // type of parameter" -- por eso ya no recibe profile_id como placeholder.)
         getOptionsByProfileAndSubSystem: `
-            SELECT DISTINCT 
-                o.option_id, 
-                o.option_de, 
-                o.parent_option_id, 
+            SELECT
+                o.option_id,
+                o.option_de,
+                o.parent_option_id,
                 o.sub_system_id
             FROM option o
-            INNER JOIN permission_option po ON o.option_id = po.option_id
-            WHERE po.profile_id = $1 
-              AND o.sub_system_id = $2
+            WHERE o.sub_system_id = $1
             ORDER BY o.option_id ASC;
         `,
 
@@ -644,6 +649,91 @@ export const sentences = {
     quitarPerfil: `
       DELETE FROM user_profile
       WHERE user_id = $1 AND profile_id = $2;
+    `
+  },
+
+  // Permiso: pantalla "Mantenimiento de Permisos por Perfil". No crea Perfiles/Opciones/
+  // Métodos (esos ya tienen sus propias pantallas) — administra permission_option y
+  // permission_method: quién (perfil) puede ver qué opción de menú o ejecutar qué método.
+  permiso: {
+    // Tarjetas resumen: cuenta ambos tipos de permiso por perfil en una sola consulta
+    // (la pestaña activa decide en el frontend cuál de las dos columnas mostrar).
+    // COUNT(DISTINCT ...) es necesario porque el doble LEFT JOIN sin llave entre sí
+    // multiplica filas (todas las permission_option de un perfil x todas sus permission_method).
+    getResumen: `
+      SELECT
+        p.profile_id,
+        p.profile_de,
+        COUNT(DISTINCT po.permission_option_id)::int AS option_count,
+        COUNT(DISTINCT pm.permission_method_id)::int AS method_count
+      FROM profile p
+      LEFT JOIN permission_option po ON po.profile_id = p.profile_id
+      LEFT JOIN permission_method pm ON pm.profile_id = p.profile_id
+      GROUP BY p.profile_id, p.profile_de
+      ORDER BY p.profile_de ASC;
+    `,
+
+    // Grilla de la pestaña "Opciones": Perfil, Subsistema (de la opción) y Opción.
+    getOpciones: `
+      SELECT
+        po.permission_option_id,
+        p.profile_id,
+        p.profile_de,
+        s.sub_system_id,
+        s.sub_system_de,
+        o.option_id,
+        o.option_de
+      FROM permission_option po
+      INNER JOIN profile p ON po.profile_id = p.profile_id
+      INNER JOIN option o ON po.option_id = o.option_id
+      INNER JOIN sub_system s ON o.sub_system_id = s.sub_system_id
+      WHERE ($1::uuid IS NULL OR po.profile_id = $1)
+      ORDER BY p.profile_de ASC, s.sub_system_de ASC, o.option_de ASC;
+    `,
+
+    // Grilla de la pestaña "Métodos": Perfil, Subsistema, Objeto y Método.
+    getMetodos: `
+      SELECT
+        pm.permission_method_id,
+        p.profile_id,
+        p.profile_de,
+        s.sub_system_id,
+        s.sub_system_de,
+        obj.object_id,
+        obj.object_de,
+        m.method_id,
+        m.method_de
+      FROM permission_method pm
+      INNER JOIN profile p ON pm.profile_id = p.profile_id
+      INNER JOIN method m ON pm.method_id = m.method_id
+      INNER JOIN object obj ON m.object_id = obj.object_id
+      INNER JOIN sub_system s ON obj.sub_system_id = s.sub_system_id
+      WHERE ($1::uuid IS NULL OR pm.profile_id = $1)
+      ORDER BY p.profile_de ASC, s.sub_system_de ASC, obj.object_de ASC, m.method_de ASC;
+    `,
+
+    asignarOpcion: `
+      INSERT INTO permission_option (profile_id, option_id)
+      VALUES ($1, $2)
+      ON CONFLICT DO NOTHING
+      RETURNING permission_option_id, profile_id, option_id;
+    `,
+
+    quitarOpciones: `
+      DELETE FROM permission_option
+      WHERE permission_option_id = ANY($1::uuid[]);
+    `,
+
+    asignarMetodo: `
+      INSERT INTO permission_method (profile_id, method_id)
+      VALUES ($1, $2)
+      ON CONFLICT DO NOTHING
+      RETURNING permission_method_id, profile_id, method_id;
+    `,
+
+    quitarMetodos: `
+      DELETE FROM permission_method
+      WHERE permission_method_id = ANY($1::uuid[]);
     `
   },
   

@@ -7,6 +7,7 @@ import MantenimientoOpciones from './MantenimientoOpciones/MantenimientoOpciones
 import MantenimientoObjetos from './MantenimientoObjetos/MantenimientoObjetos';
 import MantenimientoMetodos from './MantenimientoMetodos/MantenimientoMetodos';
 import MantenimientoPerfiles from './MantenimientoPerfiles/MantenimientoPerfiles';
+import MantenimientoPermisos from './MantenimientoPermisos/MantenimientoPermisos';
 import LeaderDashboard from './LeaderDashboard';
 import GestionProyectosLeader from './GestionProyectosLeader/GestionProyectosLeader';
 
@@ -61,6 +62,7 @@ const pageRegistry = {
   'objetos': MantenimientoObjetos,
   'metodos': MantenimientoMetodos,
   'perfiles': MantenimientoPerfiles,
+  'permisos': MantenimientoPermisos,
   'dashboard': DashboardSelector,
   'proyectos': ProyectosSelector,
 };

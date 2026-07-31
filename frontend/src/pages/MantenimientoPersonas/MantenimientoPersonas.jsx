@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { usePersonas } from '../../hooks/usePersonas';
-import PersonaSearchBar from './PersonaSearchBar';
+import SearchToolbar from '../../componentes/ui/SearchToolbar';
+import ConfirmDeleteModal from '../../componentes/ui/ConfirmDeleteModal';
 import PersonaTable from './PersonaTable';
 import CrearPersonaModal from './CrearPersonaModal';
 import EditarPersonaModal from './EditarPersonaModal';
-import EliminarPersonaModal from './EliminarPersonaModal';
-import './MantenimientoPersonas.css';
+import '../../componentes/ui/MaintenancePage.css';
 
 // Página del CRUD de Personas. Orquesta el hook de datos, la selección de filas
 // y qué modal está abierto; delega toda la presentación a subcomponentes.
@@ -95,24 +95,25 @@ const MantenimientoPersonas = () => {
   };
 
   return (
-    <section className="persona-maintenance-card">
-      <header className="persona-maintenance-header">
+    <section className="maintenance-card">
+      <header className="maintenance-header">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
         <h2>Mantenimiento de Personas</h2>
       </header>
 
-      <div className="persona-maintenance-body">
-        <PersonaSearchBar
+      <div className="maintenance-body">
+        <SearchToolbar
           value={search}
           onChange={setSearch}
+          placeholder="Search by Name..."
           hasSelection={selectedIds.size > 0}
           onDeleteClick={openDelete}
           onCreateClick={openCreate}
         />
 
-        {error && <p className="persona-load-error">{error}</p>}
+        {error && <p className="maintenance-load-error">{error}</p>}
 
         <PersonaTable
           personas={personas}
@@ -138,8 +139,9 @@ const MantenimientoPersonas = () => {
       )}
 
       {modal === 'eliminar' && (
-        <EliminarPersonaModal
+        <ConfirmDeleteModal
           count={selectedIds.size}
+          itemLabel="persona"
           onClose={closeModal}
           onConfirm={handleDelete}
           error={actionError}

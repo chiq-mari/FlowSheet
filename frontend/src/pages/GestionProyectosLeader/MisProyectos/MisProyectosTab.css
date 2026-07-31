@@ -1,0 +1,290 @@
+/* MisProyectosTab.css */
+.mis-proyectos-tab-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Toolbar */
+.mis-proyectos-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.search-bar-container {
+  position: relative;
+  flex: 1;
+  max-width: 500px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #94a3b8;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #1e293b;
+  background-color: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #1e293b;
+  box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.1);
+}
+
+.btn-add-project {
+  background-color: #1e293b;
+  border: none;
+  color: #ffffff;
+  padding: 0.75rem 0.85rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.btn-add-project:hover {
+  background-color: #0f172a;
+  transform: translateY(-1px);
+}
+
+.btn-add-project svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Grid layout for Cards */
+.projects-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Project Card */
+.project-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+.project-card-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.project-card-icon-container {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.project-card-illustration {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+/* Dynamic Gradients */
+.bg-blue-grad {
+  background: linear-gradient(135deg, #60a5fa, #2563eb);
+}
+.bg-purple-grad {
+  background: linear-gradient(135deg, #a78bfa, #7c3aed);
+}
+.bg-orange-grad {
+  background: linear-gradient(135deg, #fbbf24, #d97706);
+}
+.bg-green-grad {
+  background: linear-gradient(135deg, #34d399, #059669);
+}
+.bg-teal-grad {
+  background: linear-gradient(135deg, #2dd4bf, #0d9488);
+}
+
+.project-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.project-card-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.project-card-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* Metric Tags */
+.project-metric-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.metric-tag-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.tag-activities {
+  background-color: #eff6ff;
+  color: #2563eb;
+}
+
+.tag-members {
+  background-color: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.tag-roles {
+  background-color: #faf5ff;
+  color: #7c3aed;
+}
+
+/* Right Section */
+.project-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+/* Status Badges */
+.project-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.status-en-progreso {
+  background-color: #ecfdf5;
+  color: #047857;
+}
+
+.status-en-progreso .status-dot {
+  background-color: #10b981;
+}
+
+.status-completado {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.status-completado .status-dot {
+  background-color: #94a3b8;
+}
+
+.project-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* State placeholders */
+.loading-projects {
+  padding: 3rem;
+  text-align: center;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.no-projects-placeholder {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: #64748b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.no-projects-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  color: #cbd5e1;
+}
+
+.no-projects-placeholder p {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .project-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding: 1.25rem 1.5rem;
+  }
+  
+  .project-card-right {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 1rem;
+  }
+}

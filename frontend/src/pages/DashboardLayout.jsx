@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Header from '../componentes/Header';
 import Sidebar from '../componentes/Sidebar';
 import { resolveDashboardPage } from './pageRegistry';
+import { verificarAccesoMenu } from '../services/toProcess';
 import './DashboardLayout.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -59,7 +60,10 @@ const DashboardLayout = ({ initialUser = null, onLogoutSuccess = null, children 
       .catch((err) => console.error("Error al cargar subsistemas:", err));
   }, [activeProfileId]);
 
-  // 3. Cargar opciones del sidebar cuando cambian perfil o subsistema
+  // 3. Cargar opciones del sidebar cuando cambian perfil o subsistema. La lista viene
+  // sin filtrar por permiso (ver comentario en getOptionsByProfileAndSubSystem): toda
+  // opción del subsistema se renderiza siempre, y es el clic (handleSelectOption) el
+  // que valida contra /toProcess y avisa si no hay acceso.
   useEffect(() => {
     if (!activeProfileId || !activeSubSystemId) {
       setOptions([]);
@@ -72,7 +76,6 @@ const DashboardLayout = ({ initialUser = null, onLogoutSuccess = null, children 
       .then((data) => {
         if (data.success && Array.isArray(data.options)) {
           setOptions(data.options);
-          // Seleccionar la primera opción disponible por defecto
           const defaultOpt = data.options.find((opt) => !opt.parent_option_id) || data.options[0] || null;
           setSelectedOption(defaultOpt);
         }
@@ -121,6 +124,24 @@ const DashboardLayout = ({ initialUser = null, onLogoutSuccess = null, children 
   };
 
   const activeProfile = profiles.find((p) => String(p.profile_id) === String(activeProfileId));
+  const activeSubSystem = subSystems.find((s) => String(s.sub_system_id) === String(activeSubSystemId));
+
+  // Chequeo de acceso al hacer clic en una opción del sidebar. La lista que llega del
+  // backend ya viene filtrada por permiso, pero puede haber quedado desactualizada
+  // (por ejemplo si un Administrador quitó el permiso en otra pestaña mientras esta
+  // sesión seguía abierta); este chequeo es la defensa real al momento del clic.
+  const handleSelectOption = async (option) => {
+    if (!activeSubSystem?.sub_system_de || !option?.option_de) {
+      setSelectedOption(option);
+      return;
+    }
+    try {
+      await verificarAccesoMenu(activeSubSystem.sub_system_de, option.option_de);
+      setSelectedOption(option);
+    } catch (err) {
+      // El alert ya se mostró dentro de verificarAccesoMenu (caso 403). No navegamos.
+    }
+  };
 
   return (
     <div className="dashboard-layout">
@@ -143,7 +164,7 @@ const DashboardLayout = ({ initialUser = null, onLogoutSuccess = null, children 
         <Sidebar
           options={options}
           selectedOptionId={selectedOption?.option_id}
-          onSelectOption={setSelectedOption}
+          onSelectOption={handleSelectOption}
           isOpen={sidebarOpen}
         />
 

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import Modal from '../../componentes/ui/Modal';
-import './PersonaModal.css';
+import Modal from './Modal';
+import './ModalForm.css';
 
-// Modal de confirmación de borrado (icono papelera). No sabe nada de fetch,
-// solo dispara onConfirm y reporta si algo salió mal.
-const EliminarPersonaModal = ({ count, onClose, onConfirm, error }) => {
+// Modal de confirmación de borrado genérico (icono papelera). No sabe nada de
+// fetch ni de qué feature lo usa — solo dispara onConfirm y reporta el error.
+// itemLabel es el sustantivo en singular (ej. "persona", "usuario").
+const ConfirmDeleteModal = ({ count, itemLabel, onClose, onConfirm, error }) => {
   const [submitting, setSubmitting] = useState(false);
 
   const handleConfirm = async () => {
@@ -15,16 +16,16 @@ const EliminarPersonaModal = ({ count, onClose, onConfirm, error }) => {
 
   return (
     <Modal title="Confirmar eliminación" icon="trash" tone="danger" onClose={onClose}>
-      <div className="persona-delete-body">
+      <div className="confirm-delete-body">
         <p>
-          ¿Estás seguro de que deseas eliminar <strong>{count} persona{count !== 1 ? 's' : ''}</strong>?
+          ¿Estás seguro de que deseas eliminar <strong>{count} {itemLabel}{count !== 1 ? 's' : ''}</strong>?
           <br />
           Esta acción no se puede deshacer.
         </p>
 
-        {error && <p className="persona-modal-error">{error}</p>}
+        {error && <p className="modal-form-error">{error}</p>}
 
-        <div className="persona-modal-actions">
+        <div className="modal-form-actions">
           <button type="button" className="btn-secondary" onClick={onClose} disabled={submitting}>
             Cancelar
           </button>
@@ -37,4 +38,4 @@ const EliminarPersonaModal = ({ count, onClose, onConfirm, error }) => {
   );
 };
 
-export default EliminarPersonaModal;
+export default ConfirmDeleteModal;

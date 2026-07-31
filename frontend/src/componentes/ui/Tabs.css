@@ -1,0 +1,42 @@
+/* src/componentes/ui/Tabs.css */
+/* Barra de pestañas genérica (Mantenimiento de Perfiles, Mantenimiento de
+   Permisos, ...). El punto de color antes del label es opcional: solo se
+   pinta si el tab trae `color`. */
+
+.ui-tabs {
+  display: flex;
+  gap: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.ui-tab {
+  display: flex;
+  align-items: center;
+  padding: 0.85rem 0.25rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.ui-tab:hover {
+  color: #475569;
+}
+
+.ui-tab.active {
+  color: #131b2e;
+  border-bottom-color: #131b2e;
+}
+
+.ui-tab-dot {
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  margin-right: 0.45rem;
+  flex-shrink: 0;
+}

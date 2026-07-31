@@ -1,27 +1,27 @@
 import React from 'react';
-import './PersonaTable.css';
+import '../../componentes/ui/DataTable.css';
 
 // Tabla presentacional: recibe datos y callbacks, no sabe de dónde vienen ni cómo se guardan.
 const PersonaTable = ({ personas, loading, selectedIds, onToggleSelect, onToggleSelectAll, onEdit }) => {
   if (loading) {
-    return <p className="persona-table-status">Cargando personas...</p>;
+    return <p className="data-table-status">Cargando personas...</p>;
   }
 
   if (personas.length === 0) {
-    return <p className="persona-table-status">No se encontraron personas.</p>;
+    return <p className="data-table-status">No se encontraron personas.</p>;
   }
 
   const allSelected = selectedIds.size === personas.length;
 
   return (
-    <div className="persona-table-wrapper">
-      <table className="persona-table">
+    <div className="data-table-wrapper">
+      <table className="data-table">
         <thead>
           <tr>
-            <th className="persona-checkbox-col">
+            <th className="checkbox-col">
               <button
                 type="button"
-                className={`persona-checkbox ${allSelected ? 'checked' : ''}`}
+                className={`row-checkbox ${allSelected ? 'checked' : ''}`}
                 onClick={onToggleSelectAll}
                 aria-label="Seleccionar todo"
               />
@@ -31,7 +31,7 @@ const PersonaTable = ({ personas, loading, selectedIds, onToggleSelect, onToggle
             <th>APELLIDO</th>
             <th>CORREO</th>
             <th>CARGO</th>
-            <th className="persona-edit-col"></th>
+            <th className="edit-col"></th>
           </tr>
         </thead>
         <tbody>
@@ -42,24 +42,24 @@ const PersonaTable = ({ personas, loading, selectedIds, onToggleSelect, onToggle
                 <td>
                   <button
                     type="button"
-                    className={`persona-checkbox ${isSelected ? 'checked' : ''}`}
+                    className={`row-checkbox ${isSelected ? 'checked' : ''}`}
                     onClick={() => onToggleSelect(persona.person_id)}
                     aria-label={`Seleccionar ${persona.person_na}`}
                   />
                 </td>
-                <td className="persona-ci">{persona.person_ci}</td>
-                <td className="persona-strong">{persona.person_na}</td>
+                <td className="cell-mono">{persona.person_ci}</td>
+                <td className="cell-strong">{persona.person_na}</td>
                 <td>{persona.person_ln}</td>
-                <td className="persona-email">{persona.person_email}</td>
+                <td className="cell-link">{persona.person_email}</td>
                 <td>
                   {persona.charge_name && (
-                    <span className="persona-charge-pill">{persona.charge_name}</span>
+                    <span className="pill pill-blue">{persona.charge_name}</span>
                   )}
                 </td>
                 <td>
                   <button
                     type="button"
-                    className="persona-edit-btn"
+                    className="row-edit-btn"
                     onClick={() => onEdit(persona)}
                     title="Editar"
                   >

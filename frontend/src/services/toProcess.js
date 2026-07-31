@@ -23,9 +23,45 @@ export async function ejecutarMetodo(subSystem, object, method, executionParams 
 
   const data = await response.json().catch(() => ({}));
 
+  if (response.status === 403) {
+    // La "aduana" central (Security, vía /toProcess) negó el permiso. Se avisa aquí,
+    // en el único punto por el que pasa toda transacción, para que ninguna pantalla
+    // tenga que acordarse de manejar este caso por su cuenta.
+    window.alert(data.message || 'Usted no tiene permiso para acceder a este método.');
+  }
+
   if (!response.ok) {
     throw new Error(data.message || 'Error al ejecutar la transacción.');
   }
 
   return data.data;
+}
+
+// Valida (sin ejecutar nada de negocio) si el perfil activo puede visualizar una
+// opción de menú. Se usa al hacer clic en una opción del sidebar, como defensa
+// adicional a la lista ya filtrada por permiso que devuelve /api/dashboard/options.
+export async function verificarAccesoMenu(subSystem, menu) {
+  const response = await fetch(`${API_URL}/toProcess`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ targetType: 'menu', subSystem, menu }),
+  });
+
+  if (response.status === 401) {
+    window.location.href = '/login';
+    throw new Error('Sesión expirada. Redirigiendo al login...');
+  }
+
+  const data = await response.json().catch(() => ({}));
+
+  if (response.status === 403) {
+    window.alert(data.message || 'Usted no tiene permiso para acceder a esta opción.');
+  }
+
+  if (!response.ok) {
+    throw new Error(data.message || 'Error al validar el acceso al menú.');
+  }
+
+  return data;
 }

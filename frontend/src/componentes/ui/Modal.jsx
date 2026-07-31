@@ -5,6 +5,13 @@ import './Modal.css';
 const iconPaths = {
   person: 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z',
   trash: 'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16',
+  folder: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z',
+  briefcase: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
+  layers: 'M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z',
+  list: 'M4 6h16M4 12h16M4 18h16',
+  database: 'M4 7c0-1.657 3.582-3 8-3s8 1.343 8 3m-16 0c0 1.657 3.582 3 8 3s8-1.343 8-3m-16 0v10c0 1.657 3.582 3 8 3s8-1.343 8-3V7m-16 5c0 1.657 3.582 3 8 3s8-1.343 8-3',
+  code: 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4',
+  shield: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
 };
 
 const ModalIcon = ({ icon }) => {
@@ -34,7 +41,11 @@ const Modal = ({ title, icon, tone = 'default', onClose, children }) => {
 
   return (
     <div className="modal-overlay" onMouseDown={handleOverlayClick}>
-      <div className={`modal-container ${tone === 'danger' ? 'modal-tone-danger' : ''}`}>
+      <div className={`modal-container ${
+        tone === 'danger' ? 'modal-tone-danger' : 
+        tone === 'info' ? 'modal-tone-info' : 
+        tone === 'warning' ? 'modal-tone-warning' : ''
+      }`}>
         <header className="modal-header">
           <div className="modal-header-title">
             <span className="modal-header-icon-wrap">

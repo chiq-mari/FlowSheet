@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Modal from '../../componentes/ui/Modal';
 import PersonaFormFields from './PersonaFormFields';
-import './PersonaModal.css';
+import '../../componentes/ui/ModalForm.css';
 
 const emptyForm = { personCi: '', personNa: '', personLn: '', personEmail: '', chargeId: '' };
 
@@ -21,12 +21,12 @@ const CrearPersonaModal = ({ onClose, onSubmit, error }) => {
 
   return (
     <Modal title="Nueva Persona" icon="person" onClose={onClose}>
-      <form className="persona-modal-form" onSubmit={handleSubmit}>
+      <form className="modal-form" onSubmit={handleSubmit}>
         <PersonaFormFields values={values} onFieldChange={handleFieldChange} disabled={submitting} />
 
-        {error && <p className="persona-modal-error">{error}</p>}
+        {error && <p className="modal-form-error">{error}</p>}
 
-        <div className="persona-modal-actions">
+        <div className="modal-form-actions">
           <button type="button" className="btn-secondary" onClick={onClose} disabled={submitting}>
             Cancelar
           </button>

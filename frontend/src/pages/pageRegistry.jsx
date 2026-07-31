@@ -1,5 +1,7 @@
 import React from 'react';
 import MantenimientoPersonas from './MantenimientoPersonas/MantenimientoPersonas';
+import MantenimientoUsuarios from './MantenimientoUsuarios/MantenimientoUsuarios';
+import MantenimientoCargos from './MantenimientoCargos/MantenimientoCargos';
 import LeaderDashboard from './LeaderDashboard';
 
 // Selector dinámico para la opción Dashboard según el perfil seleccionado
@@ -27,6 +29,8 @@ const DashboardSelector = ({ user, activeProfile }) => {
 // nunca necesita conocer los componentes concretos de cada feature.
 const pageRegistry = {
   'personas': MantenimientoPersonas,
+  'usuarios': MantenimientoUsuarios,
+  'cargos': MantenimientoCargos,
   'dashboard': DashboardSelector,
 };
 

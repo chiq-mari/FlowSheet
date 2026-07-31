@@ -2,16 +2,16 @@ import React from 'react';
 import '../../componentes/ui/DataTable.css';
 
 // Tabla presentacional: recibe datos y callbacks, no sabe de dónde vienen ni cómo se guardan.
-const PersonaTable = ({ personas, loading, selectedIds, onToggleSelect, onToggleSelectAll, onEdit }) => {
+const CargoTable = ({ cargos, loading, selectedIds, onToggleSelect, onToggleSelectAll, onEdit }) => {
   if (loading) {
-    return <p className="data-table-status">Cargando personas...</p>;
+    return <p className="data-table-status">Cargando cargos...</p>;
   }
 
-  if (personas.length === 0) {
-    return <p className="data-table-status">No se encontraron personas.</p>;
+  if (cargos.length === 0) {
+    return <p className="data-table-status">No se encontraron cargos.</p>;
   }
 
-  const allSelected = selectedIds.size === personas.length;
+  const allSelected = selectedIds.size === cargos.length;
 
   return (
     <div className="data-table-wrapper">
@@ -26,41 +26,29 @@ const PersonaTable = ({ personas, loading, selectedIds, onToggleSelect, onToggle
                 aria-label="Seleccionar todo"
               />
             </th>
-            <th>CI</th>
-            <th>NOMBRE</th>
-            <th>APELLIDO</th>
-            <th>CORREO</th>
-            <th>CARGO</th>
+            <th>NOMBRE DEL CARGO</th>
             <th className="edit-col"></th>
           </tr>
         </thead>
         <tbody>
-          {personas.map((persona) => {
-            const isSelected = selectedIds.has(persona.person_id);
+          {cargos.map((cargo) => {
+            const isSelected = selectedIds.has(cargo.id);
             return (
-              <tr key={persona.person_id} className={isSelected ? 'selected' : ''}>
+              <tr key={cargo.id} className={isSelected ? 'selected' : ''}>
                 <td>
                   <button
                     type="button"
                     className={`row-checkbox ${isSelected ? 'checked' : ''}`}
-                    onClick={() => onToggleSelect(persona.person_id)}
-                    aria-label={`Seleccionar ${persona.person_na}`}
+                    onClick={() => onToggleSelect(cargo.id)}
+                    aria-label={`Seleccionar ${cargo.name}`}
                   />
                 </td>
-                <td className="cell-mono">{persona.person_ci}</td>
-                <td className="cell-strong">{persona.person_na}</td>
-                <td>{persona.person_ln}</td>
-                <td className="cell-link">{persona.person_email}</td>
-                <td>
-                  {persona.charge_name && (
-                    <span className="pill pill-blue">{persona.charge_name}</span>
-                  )}
-                </td>
+                <td className="cell-strong">{cargo.name}</td>
                 <td>
                   <button
                     type="button"
                     className="row-edit-btn"
-                    onClick={() => onEdit(persona)}
+                    onClick={() => onEdit(cargo)}
                     title="Editar"
                   >
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,4 +65,4 @@ const PersonaTable = ({ personas, loading, selectedIds, onToggleSelect, onToggle
   );
 };
 
-export default PersonaTable;
+export default CargoTable;

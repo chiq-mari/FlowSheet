@@ -1,17 +1,13 @@
 import React, { useState } from 'react';
 import Modal from '../../componentes/ui/Modal';
-import PersonaFormFields from './PersonaFormFields';
+import UsuarioFormFields from './UsuarioFormFields';
 import '../../componentes/ui/ModalForm.css';
 
-// Modal de edición (icono lápiz). Recibe la fila seleccionada y la precarga en el formulario.
-const EditarPersonaModal = ({ persona, onClose, onSubmit, error }) => {
-  const [values, setValues] = useState({
-    personCi: persona.person_ci || '',
-    personNa: persona.person_na || '',
-    personLn: persona.person_ln || '',
-    personEmail: persona.person_email || '',
-    chargeId: persona.charge_id ?? '',
-  });
+const emptyForm = { userNa: '', userPw: '', userEmail: '', statusUserId: '', personId: '', personDisplay: null };
+
+// Modal de alta ("+"). Solo sabe recolectar los campos y delegar el guardado al padre.
+const CrearUsuarioModal = ({ onClose, onSubmit, error }) => {
+  const [values, setValues] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
 
   const handleFieldChange = (field, value) => setValues((prev) => ({ ...prev, [field]: value }));
@@ -19,14 +15,15 @@ const EditarPersonaModal = ({ persona, onClose, onSubmit, error }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    await onSubmit({ personId: persona.person_id, ...values });
+    const { personDisplay: _personDisplay, ...payload } = values;
+    await onSubmit(payload);
     setSubmitting(false);
   };
 
   return (
-    <Modal title="Editar Persona" icon="person" onClose={onClose}>
+    <Modal title="Nuevo Usuario" icon="person" onClose={onClose}>
       <form className="modal-form" onSubmit={handleSubmit}>
-        <PersonaFormFields values={values} onFieldChange={handleFieldChange} disabled={submitting} />
+        <UsuarioFormFields values={values} onFieldChange={handleFieldChange} disabled={submitting} />
 
         {error && <p className="modal-form-error">{error}</p>}
 
@@ -35,7 +32,7 @@ const EditarPersonaModal = ({ persona, onClose, onSubmit, error }) => {
             Cancelar
           </button>
           <button type="submit" className="btn-primary" disabled={submitting}>
-            {submitting ? 'Guardando...' : 'Guardar cambios'}
+            {submitting ? 'Agregando...' : 'Agregar'}
           </button>
         </div>
       </form>
@@ -43,4 +40,4 @@ const EditarPersonaModal = ({ persona, onClose, onSubmit, error }) => {
   );
 };
 
-export default EditarPersonaModal;
+export default CrearUsuarioModal;

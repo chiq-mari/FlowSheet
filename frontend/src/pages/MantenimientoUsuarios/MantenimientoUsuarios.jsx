@@ -1,38 +1,38 @@
 import React, { useState } from 'react';
-import { usePersonas } from '../../hooks/usePersonas';
+import { useUsuarios } from '../../hooks/useUsuarios';
 import SearchToolbar from '../../componentes/ui/SearchToolbar';
 import ConfirmDeleteModal from '../../componentes/ui/ConfirmDeleteModal';
-import PersonaTable from './PersonaTable';
-import CrearPersonaModal from './CrearPersonaModal';
-import EditarPersonaModal from './EditarPersonaModal';
+import UsuarioTable from './UsuarioTable';
+import CrearUsuarioModal from './CrearUsuarioModal';
+import EditarUsuarioModal from './EditarUsuarioModal';
 import '../../componentes/ui/MaintenancePage.css';
 
-// Página del CRUD de Personas. Orquesta el hook de datos, la selección de filas
+// Página del CRUD de Usuarios. Orquesta el hook de datos, la selección de filas
 // y qué modal está abierto; delega toda la presentación a subcomponentes.
-const MantenimientoPersonas = () => {
+const MantenimientoUsuarios = () => {
   const {
-    personas,
+    usuarios,
     search,
     setSearch,
     loading,
     error,
-    createPersona,
-    updatePersona,
-    deletePersonas,
-  } = usePersonas();
+    createUsuario,
+    updateUsuario,
+    deleteUsuarios,
+  } = useUsuarios();
 
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [modal, setModal] = useState(null); // 'crear' | 'editar' | 'eliminar' | null
-  const [personaToEdit, setPersonaToEdit] = useState(null);
+  const [usuarioToEdit, setUsuarioToEdit] = useState(null);
   const [actionError, setActionError] = useState(null);
 
-  const toggleSelect = (personId) => {
+  const toggleSelect = (userId) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(personId)) {
-        next.delete(personId);
+      if (next.has(userId)) {
+        next.delete(userId);
       } else {
-        next.add(personId);
+        next.add(userId);
       }
       return next;
     });
@@ -40,7 +40,7 @@ const MantenimientoPersonas = () => {
 
   const toggleSelectAll = () => {
     setSelectedIds((prev) =>
-      prev.size === personas.length ? new Set() : new Set(personas.map((p) => p.person_id))
+      prev.size === usuarios.length ? new Set() : new Set(usuarios.map((u) => u.user_id))
     );
   };
 
@@ -49,9 +49,9 @@ const MantenimientoPersonas = () => {
     setModal('crear');
   };
 
-  const openEdit = (persona) => {
+  const openEdit = (usuario) => {
     setActionError(null);
-    setPersonaToEdit(persona);
+    setUsuarioToEdit(usuario);
     setModal('editar');
   };
 
@@ -62,13 +62,13 @@ const MantenimientoPersonas = () => {
 
   const closeModal = () => {
     setModal(null);
-    setPersonaToEdit(null);
+    setUsuarioToEdit(null);
     setActionError(null);
   };
 
   const handleCreate = async (payload) => {
     try {
-      await createPersona(payload);
+      await createUsuario(payload);
       closeModal();
     } catch (err) {
       setActionError(err.message);
@@ -77,7 +77,7 @@ const MantenimientoPersonas = () => {
 
   const handleUpdate = async (payload) => {
     try {
-      await updatePersona(payload);
+      await updateUsuario(payload);
       closeModal();
     } catch (err) {
       setActionError(err.message);
@@ -86,7 +86,7 @@ const MantenimientoPersonas = () => {
 
   const handleDelete = async () => {
     try {
-      await deletePersonas(Array.from(selectedIds));
+      await deleteUsuarios(Array.from(selectedIds));
       setSelectedIds(new Set());
       closeModal();
     } catch (err) {
@@ -98,16 +98,16 @@ const MantenimientoPersonas = () => {
     <section className="maintenance-card">
       <header className="maintenance-header">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
-        <h2>Mantenimiento de Personas</h2>
+        <h2>Mantenimiento de Usuarios</h2>
       </header>
 
       <div className="maintenance-body">
         <SearchToolbar
           value={search}
           onChange={setSearch}
-          placeholder="Search by Name..."
+          placeholder="Buscar usuario..."
           hasSelection={selectedIds.size > 0}
           onDeleteClick={openDelete}
           onCreateClick={openCreate}
@@ -115,8 +115,8 @@ const MantenimientoPersonas = () => {
 
         {error && <p className="maintenance-load-error">{error}</p>}
 
-        <PersonaTable
-          personas={personas}
+        <UsuarioTable
+          usuarios={usuarios}
           loading={loading}
           selectedIds={selectedIds}
           onToggleSelect={toggleSelect}
@@ -126,12 +126,12 @@ const MantenimientoPersonas = () => {
       </div>
 
       {modal === 'crear' && (
-        <CrearPersonaModal onClose={closeModal} onSubmit={handleCreate} error={actionError} />
+        <CrearUsuarioModal onClose={closeModal} onSubmit={handleCreate} error={actionError} />
       )}
 
-      {modal === 'editar' && personaToEdit && (
-        <EditarPersonaModal
-          persona={personaToEdit}
+      {modal === 'editar' && usuarioToEdit && (
+        <EditarUsuarioModal
+          usuario={usuarioToEdit}
           onClose={closeModal}
           onSubmit={handleUpdate}
           error={actionError}
@@ -141,7 +141,7 @@ const MantenimientoPersonas = () => {
       {modal === 'eliminar' && (
         <ConfirmDeleteModal
           count={selectedIds.size}
-          itemLabel="persona"
+          itemLabel="usuario"
           onClose={closeModal}
           onConfirm={handleDelete}
           error={actionError}
@@ -151,4 +151,4 @@ const MantenimientoPersonas = () => {
   );
 };
 
-export default MantenimientoPersonas;
+export default MantenimientoUsuarios;

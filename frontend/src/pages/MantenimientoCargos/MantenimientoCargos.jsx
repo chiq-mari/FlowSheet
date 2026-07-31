@@ -1,38 +1,38 @@
 import React, { useState } from 'react';
-import { usePersonas } from '../../hooks/usePersonas';
+import { useCargos } from '../../hooks/useCargos';
 import SearchToolbar from '../../componentes/ui/SearchToolbar';
 import ConfirmDeleteModal from '../../componentes/ui/ConfirmDeleteModal';
-import PersonaTable from './PersonaTable';
-import CrearPersonaModal from './CrearPersonaModal';
-import EditarPersonaModal from './EditarPersonaModal';
+import CargoTable from './CargoTable';
+import CrearCargoModal from './CrearCargoModal';
+import EditarCargoModal from './EditarCargoModal';
 import '../../componentes/ui/MaintenancePage.css';
 
-// Página del CRUD de Personas. Orquesta el hook de datos, la selección de filas
+// Página del CRUD de Cargos. Orquesta el hook de datos, la selección de filas
 // y qué modal está abierto; delega toda la presentación a subcomponentes.
-const MantenimientoPersonas = () => {
+const MantenimientoCargos = () => {
   const {
-    personas,
+    cargos,
     search,
     setSearch,
     loading,
     error,
-    createPersona,
-    updatePersona,
-    deletePersonas,
-  } = usePersonas();
+    createCargo,
+    updateCargo,
+    deleteCargos,
+  } = useCargos();
 
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [modal, setModal] = useState(null); // 'crear' | 'editar' | 'eliminar' | null
-  const [personaToEdit, setPersonaToEdit] = useState(null);
+  const [cargoToEdit, setCargoToEdit] = useState(null);
   const [actionError, setActionError] = useState(null);
 
-  const toggleSelect = (personId) => {
+  const toggleSelect = (id) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(personId)) {
-        next.delete(personId);
+      if (next.has(id)) {
+        next.delete(id);
       } else {
-        next.add(personId);
+        next.add(id);
       }
       return next;
     });
@@ -40,7 +40,7 @@ const MantenimientoPersonas = () => {
 
   const toggleSelectAll = () => {
     setSelectedIds((prev) =>
-      prev.size === personas.length ? new Set() : new Set(personas.map((p) => p.person_id))
+      prev.size === cargos.length ? new Set() : new Set(cargos.map((c) => c.id))
     );
   };
 
@@ -49,9 +49,9 @@ const MantenimientoPersonas = () => {
     setModal('crear');
   };
 
-  const openEdit = (persona) => {
+  const openEdit = (cargo) => {
     setActionError(null);
-    setPersonaToEdit(persona);
+    setCargoToEdit(cargo);
     setModal('editar');
   };
 
@@ -62,13 +62,13 @@ const MantenimientoPersonas = () => {
 
   const closeModal = () => {
     setModal(null);
-    setPersonaToEdit(null);
+    setCargoToEdit(null);
     setActionError(null);
   };
 
   const handleCreate = async (payload) => {
     try {
-      await createPersona(payload);
+      await createCargo(payload);
       closeModal();
     } catch (err) {
       setActionError(err.message);
@@ -77,7 +77,7 @@ const MantenimientoPersonas = () => {
 
   const handleUpdate = async (payload) => {
     try {
-      await updatePersona(payload);
+      await updateCargo(payload);
       closeModal();
     } catch (err) {
       setActionError(err.message);
@@ -86,7 +86,7 @@ const MantenimientoPersonas = () => {
 
   const handleDelete = async () => {
     try {
-      await deletePersonas(Array.from(selectedIds));
+      await deleteCargos(Array.from(selectedIds));
       setSelectedIds(new Set());
       closeModal();
     } catch (err) {
@@ -98,16 +98,16 @@ const MantenimientoPersonas = () => {
     <section className="maintenance-card">
       <header className="maintenance-header">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>
-        <h2>Mantenimiento de Personas</h2>
+        <h2>Mantenimiento de Cargos</h2>
       </header>
 
       <div className="maintenance-body">
         <SearchToolbar
           value={search}
           onChange={setSearch}
-          placeholder="Search by Name..."
+          placeholder="Buscar cargo..."
           hasSelection={selectedIds.size > 0}
           onDeleteClick={openDelete}
           onCreateClick={openCreate}
@@ -115,8 +115,8 @@ const MantenimientoPersonas = () => {
 
         {error && <p className="maintenance-load-error">{error}</p>}
 
-        <PersonaTable
-          personas={personas}
+        <CargoTable
+          cargos={cargos}
           loading={loading}
           selectedIds={selectedIds}
           onToggleSelect={toggleSelect}
@@ -126,12 +126,12 @@ const MantenimientoPersonas = () => {
       </div>
 
       {modal === 'crear' && (
-        <CrearPersonaModal onClose={closeModal} onSubmit={handleCreate} error={actionError} />
+        <CrearCargoModal onClose={closeModal} onSubmit={handleCreate} error={actionError} />
       )}
 
-      {modal === 'editar' && personaToEdit && (
-        <EditarPersonaModal
-          persona={personaToEdit}
+      {modal === 'editar' && cargoToEdit && (
+        <EditarCargoModal
+          cargo={cargoToEdit}
           onClose={closeModal}
           onSubmit={handleUpdate}
           error={actionError}
@@ -141,7 +141,7 @@ const MantenimientoPersonas = () => {
       {modal === 'eliminar' && (
         <ConfirmDeleteModal
           count={selectedIds.size}
-          itemLabel="persona"
+          itemLabel="cargo"
           onClose={closeModal}
           onConfirm={handleDelete}
           error={actionError}
@@ -151,4 +151,4 @@ const MantenimientoPersonas = () => {
   );
 };
 
-export default MantenimientoPersonas;
+export default MantenimientoCargos;

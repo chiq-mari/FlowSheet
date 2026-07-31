@@ -1,0 +1,136 @@
+/* src/componentes/ui/FormGrid.css */
+/* Grid de campos de formulario compartido por cualquier feature con Crear/Editar
+   (Persona, Usuario, etc.) — el layout y estilo de inputs es siempre el mismo,
+   solo cambian los campos concretos que cada feature dibuja adentro. */
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 1.25rem;
+}
+
+.form-field-full {
+  grid-column: 1 / -1;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-field label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #475569;
+  text-transform: uppercase;
+}
+
+.form-field input,
+.form-field select {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: #1e293b;
+  background-color: #ffffff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-field input::placeholder {
+  color: #94a3b8;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.form-field input:disabled,
+.form-field select:disabled {
+  background-color: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Campo tipo "botón" (ej. el selector de Persona dentro del form de Usuario):
+   se ve como un input pero al hacer click abre otro modal. */
+.form-field-picker-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: #1e293b;
+  background-color: #ffffff;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-field-picker-btn:hover:not(:disabled) {
+  border-color: #94a3b8;
+}
+
+.form-field-picker-btn:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.form-field-picker-btn:disabled {
+  background-color: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.form-field-picker-btn .picker-placeholder {
+  color: #94a3b8;
+}
+
+.form-field-picker-btn svg {
+  width: 1rem;
+  height: 1rem;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+/* Input de contraseña con botón de mostrar/ocultar embebido */
+.form-field-password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-field-password-wrap input {
+  width: 100%;
+  padding-right: 2.25rem;
+}
+
+.form-field-password-toggle {
+  position: absolute;
+  right: 0.6rem;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.form-field-password-toggle svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.form-field-password-toggle:hover {
+  color: #475569;
+}

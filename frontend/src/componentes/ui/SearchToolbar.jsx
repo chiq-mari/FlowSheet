@@ -1,17 +1,19 @@
 import React from 'react';
+import './SearchToolbar.css';
 
-// Barra de herramientas: búsqueda por nombre + acciones de eliminar/crear.
-// Es puramente presentacional, todo el estado vive en MantenimientoPersonas.
-const PersonaSearchBar = ({ value, onChange, hasSelection, onDeleteClick, onCreateClick }) => {
+// Barra de herramientas genérica: búsqueda por texto + acciones de eliminar/crear.
+// Puramente presentacional — cualquier pantalla de mantenimiento (Persona, Usuario, ...)
+// la reusa pasándole solo el placeholder y los callbacks.
+const SearchToolbar = ({ value, onChange, placeholder = 'Buscar...', hasSelection, onDeleteClick, onCreateClick }) => {
   return (
-    <div className="persona-toolbar">
-      <div className="persona-search-input">
+    <div className="search-toolbar">
+      <div className="search-toolbar-input">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
         </svg>
         <input
           type="text"
-          placeholder="Search by Name..."
+          placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
         />
@@ -19,7 +21,7 @@ const PersonaSearchBar = ({ value, onChange, hasSelection, onDeleteClick, onCrea
 
       <button
         type="button"
-        className="persona-icon-btn persona-delete-btn"
+        className="toolbar-icon-btn toolbar-delete-btn"
         disabled={!hasSelection}
         onClick={onDeleteClick}
         title="Eliminar seleccionados"
@@ -31,9 +33,9 @@ const PersonaSearchBar = ({ value, onChange, hasSelection, onDeleteClick, onCrea
 
       <button
         type="button"
-        className="persona-icon-btn persona-add-btn"
+        className="toolbar-icon-btn toolbar-add-btn"
         onClick={onCreateClick}
-        title="Nueva persona"
+        title="Nuevo"
       >
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -43,4 +45,4 @@ const PersonaSearchBar = ({ value, onChange, hasSelection, onDeleteClick, onCrea
   );
 };
 
-export default PersonaSearchBar;
+export default SearchToolbar;

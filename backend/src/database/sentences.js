@@ -333,18 +333,105 @@ export const sentences = {
     // 5. Eliminar persona (icono papelera - soporta ID único o array vía ANY)
     delete: `
       DELETE FROM person
-      WHERE person_id = ANY($1::int[]);
+      WHERE person_id = ANY($1::uuid[]);
     `
   },
 
-  // Extra necesario para llenar el <select> o combobox de Cargos en el formulario de creación/edición
+  // Cargo: usado tanto por el <select> de Persona como por su propia pantalla de mantenimiento
   charge: {
+    // Admite búsqueda opcional por nombre; si no se manda término, devuelve todos (uso del combobox).
     getAll: `
-      SELECT 
-        id, 
-        name 
-      FROM charge 
+      SELECT
+        id,
+        name
+      FROM charge
+      WHERE ($1::text IS NULL OR $1 = '' OR LOWER(name) LIKE LOWER('%' || $1 || '%'))
       ORDER BY name ASC;
+    `,
+
+    create: `
+      INSERT INTO charge (name)
+      VALUES ($1)
+      RETURNING id, name;
+    `,
+
+    update: `
+      UPDATE charge
+      SET name = $1
+      WHERE id = $2
+      RETURNING id, name;
+    `,
+
+    delete: `
+      DELETE FROM charge
+      WHERE id = ANY($1::uuid[]);
+    `
+  },
+
+  usuario: {
+    // 1. Obtener todos los usuarios con los datos de su Persona vinculada (para la tabla principal)
+    // Permite filtrar opcionalmente por username o por nombre/apellido/CI de la persona
+    getAll: `
+      SELECT
+        u.user_id,
+        u.user_na,
+        u.user_pw,
+        u.user_email,
+        u.status_user_id,
+        su.status_user_de,
+        u.person_id,
+        p.person_ci,
+        p.person_na,
+        p.person_ln
+      FROM "user" u
+      INNER JOIN status_user su ON u.status_user_id = su.status_user_id
+      LEFT JOIN person p ON u.person_id = p.person_id
+      WHERE
+        ($1::text IS NULL OR $1 = '' OR
+         LOWER(u.user_na) LIKE LOWER('%' || $1 || '%') OR
+         LOWER(p.person_ci) LIKE LOWER('%' || $1 || '%') OR
+         LOWER(p.person_na) LIKE LOWER('%' || $1 || '%') OR
+         LOWER(p.person_ln) LIKE LOWER('%' || $1 || '%'))
+      ORDER BY u.user_id DESC;
+    `,
+
+    // 2. Crear usuario (+)
+    create: `
+      INSERT INTO "user" (
+        user_na,
+        user_pw,
+        user_email,
+        status_user_id,
+        person_id
+      )
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING user_id, user_na, user_pw, user_email, status_user_id, person_id;
+    `,
+
+    // 3. Actualizar usuario (icono lápiz)
+    update: `
+      UPDATE "user"
+      SET
+        user_na = $1,
+        user_pw = $2,
+        user_email = $3,
+        status_user_id = $4,
+        person_id = $5
+      WHERE user_id = $6
+      RETURNING user_id, user_na, user_pw, user_email, status_user_id, person_id;
+    `,
+
+    // 4. Eliminar usuario (icono papelera - soporta ID único o array vía ANY)
+    delete: `
+      DELETE FROM "user"
+      WHERE user_id = ANY($1::uuid[]);
+    `,
+
+    // 5. Catálogo de estados para el <select> de Status en el formulario
+    getEstados: `
+      SELECT status_user_id, status_user_de
+      FROM status_user
+      ORDER BY status_user_id ASC;
     `
   }
 };

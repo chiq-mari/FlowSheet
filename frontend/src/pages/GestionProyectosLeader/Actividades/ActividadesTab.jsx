@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { ejecutarMetodo } from '../../../services/toProcess';
 import ActividadModal from './ActividadModal';
 import AsignarEncargadoModal from './AsignarEncargadoModal';
+import SeleccionarResponsableModal from './SeleccionarResponsableModal';
+import EliminarAsignadoConfirmModal from './EliminarAsignadoConfirmModal';
 import Modal from '../../../componentes/ui/Modal';
 import EditButton from '../../../componentes/ui/EditButton';
 import './ActividadesTab.css';
@@ -25,6 +27,11 @@ export function ActividadesTab() {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  
+  // Assignee sub-modals state
+  const [isAddResponsableOpen, setIsAddResponsableOpen] = useState(false);
+  const [isRemoveResponsableOpen, setIsRemoveResponsableOpen] = useState(false);
+  const [selectedAssignee, setSelectedAssignee] = useState(null);
 
   // Responsables section filters
   const [filterActivityId, setFilterActivityId] = useState('ALL');
@@ -135,6 +142,7 @@ export function ActividadesTab() {
         activityId: selectedActivity.id,
         proyectRoleUserId
       });
+      setIsAddResponsableOpen(false);
       fetchProjectData();
     } catch (err) {
       alert(err.message || 'Error al asignar miembro.');
@@ -142,21 +150,27 @@ export function ActividadesTab() {
     }
   };
 
-  // Unassign user from activity
-  const handleUnassignMember = async (userAssignmentId) => {
+  // Triggers unassign operation from confirmation modal
+  const handleUnassignConfirm = async () => {
+    if (!selectedAssignee) return;
     try {
-      const confirmUnassign = window.confirm('¿Está seguro de que desea remover a este encargado de la actividad?');
-      if (confirmUnassign) {
-        await ejecutarMetodo('Hojas de Tiempo', 'Actividades', 'unassignMember', { userAssignmentId });
-        fetchProjectData();
-      }
+      await ejecutarMetodo('Hojas de Tiempo', 'Actividades', 'unassignMember', {
+        userAssignmentId: selectedAssignee.user_assignment_id
+      });
+      setIsRemoveResponsableOpen(false);
+      fetchProjectData();
     } catch (err) {
       alert(err.message || 'Error al desasignar miembro.');
     }
   };
 
+  // Filter out any assignments associated with the project Leader (presentation layer only)
+  const nonLeaderAssignments = assignments.filter(
+    (a) => !a.role_name.toLowerCase().includes('lider') && !a.role_name.toLowerCase().includes('líder')
+  );
+
   // Filter assignments list for bottom table
-  const filteredAssignments = assignments.filter((a) => {
+  const filteredAssignments = nonLeaderAssignments.filter((a) => {
     const matchesAct = filterActivityId === 'ALL' || String(a.assignment_id) === String(filterActivityId);
     const matchesUser = filterUserId === 'ALL' || String(a.user_id) === String(filterUserId);
     return matchesAct && matchesUser;
@@ -164,8 +178,17 @@ export function ActividadesTab() {
 
   // Extract unique users from assignments for filter list
   const uniqueAssignedUsers = Array.from(
-    new Map(assignments.map((item) => [item.user_id, item])).values()
+    new Map(nonLeaderAssignments.map((item) => [item.user_id, item])).values()
   );
+
+  // Compute unassigned team members (excluding leaders and already assigned users)
+  const activeAssignments = nonLeaderAssignments.filter((a) => a.assignment_id === selectedActivity?.id);
+  const unassignedMembers = teamMembers.filter((m) => {
+    const isLeader = m.role_name.toLowerCase().includes('lider') || m.role_name.toLowerCase().includes('líder');
+    const isAlreadyAssigned = activeAssignments.some((a) => String(a.proyect_role_user_id) === String(m.proyect_role_user_id));
+    return !isLeader && !isAlreadyAssigned;
+  });
+
 
   if (loading) {
     return <div className="activities-loading">Cargando actividades...</div>;
@@ -210,7 +233,7 @@ export function ActividadesTab() {
         <div className="metric-card-wrapper blue">
           <div className="metric-card-content">
             <span className="metric-card-label">ASIGNACIONES</span>
-            <span className="metric-card-value">{assignments.length}</span>
+            <span className="metric-card-value">{nonLeaderAssignments.length}</span>
             <span className="metric-card-subtext">responsables asignados</span>
           </div>
           <div className="metric-card-icon-container blue">
@@ -333,7 +356,7 @@ export function ActividadesTab() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
             <span className="project-title">Responsables</span>
-            <span className="count-badge blue">{assignments.length} asignaciones</span>
+            <span className="count-badge blue">{nonLeaderAssignments.length} asignaciones</span>
           </div>
         </div>
 
@@ -435,10 +458,32 @@ export function ActividadesTab() {
           isOpen={isAssignModalOpen}
           onClose={() => setIsAssignModalOpen(false)}
           activity={selectedActivity}
-          assignments={assignments}
-          teamMembers={teamMembers}
-          onAssign={handleAssignMember}
-          onUnassign={handleUnassignMember}
+          assignments={nonLeaderAssignments}
+          onOpenAdd={() => setIsAddResponsableOpen(true)}
+          onOpenRemove={(assignee) => {
+            setSelectedAssignee(assignee);
+            setIsRemoveResponsableOpen(true);
+          }}
+        />
+      )}
+
+      {/* Select assignee sub-modal */}
+      {isAddResponsableOpen && (
+        <SeleccionarResponsableModal
+          isOpen={isAddResponsableOpen}
+          onClose={() => setIsAddResponsableOpen(false)}
+          unassignedMembers={unassignedMembers}
+          onAdd={handleAssignMember}
+        />
+      )}
+
+      {/* Confirm unassign modal */}
+      {isRemoveResponsableOpen && (
+        <EliminarAsignadoConfirmModal
+          isOpen={isRemoveResponsableOpen}
+          onClose={() => setIsRemoveResponsableOpen(false)}
+          onConfirm={handleUnassignConfirm}
+          username={selectedAssignee?.username}
         />
       )}
 
@@ -449,22 +494,23 @@ export function ActividadesTab() {
           onClose={() => setIsDeleteConfirmOpen(false)}
           title="Eliminar actividades"
           icon="trash"
+          tone="danger"
         >
-          <div className="project-modal-form">
-            <p style={{ fontSize: '1rem', color: '#334155', marginBottom: '1.5rem', textAlign: 'center' }}>
-              ¿Eliminar <strong>{checkedIds.length}</strong> {checkedIds.length === 1 ? 'actividad' : 'actividades'}? Esta acción no se puede deshacer y borrará también todos los registros de notificaciones de avance vinculados.
+          <div className="proyecto-form">
+            <p style={{ fontSize: '0.95rem', color: '#475569', marginBottom: '1.5rem', textAlign: 'center' }}>
+              ¿Eliminar <strong>{checkedIds.length}</strong> {checkedIds.length === 1 ? 'actividad' : 'actividades'}? Esta acción no se puede deshacer.
             </p>
-            <div className="modal-actions-buttons">
+            <div className="proyecto-modal-actions">
               <button
                 type="button"
-                className="btn-secondary-flat"
+                className="proyecto-btn-cancel"
                 onClick={() => setIsDeleteConfirmOpen(false)}
               >
                 Cancelar
               </button>
               <button
                 type="button"
-                className="btn-danger-flat"
+                className="proyecto-btn-submit btn-red"
                 onClick={handleDeleteConfirm}
               >
                 Sí, eliminar

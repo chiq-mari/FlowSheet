@@ -569,3 +569,42 @@
     transform: translateY(0);
   }
 }
+
+/* Custom button classes to match requested pill styling */
+.btn-blue {
+  background-color: #3b82f6 !important;
+  color: white !important;
+  border-radius: 9999px !important;
+  border: none !important;
+  padding: 0.65rem 1.75rem !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-blue:hover {
+  background-color: #2563eb !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.25);
+}
+
+.btn-red {
+  background-color: #e11d48 !important;
+  color: white !important;
+  border-radius: 9999px !important;
+  border: none !important;
+  padding: 0.65rem 1.75rem !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-red:hover {
+  background-color: #be123c !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 6px -1px rgba(225, 29, 72, 0.25);
+}
+
+.proyecto-btn-cancel {
+  border-radius: 9999px !important;
+  padding: 0.65rem 1.75rem !important;
+}
+

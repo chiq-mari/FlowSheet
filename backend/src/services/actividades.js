@@ -142,12 +142,22 @@ class Actividades {
      */
     async updateActivity(executionParams, userData) {
         const { activityId, name, statusId } = executionParams;
-        if (!activityId || !name || !statusId) {
-            throw new Error('El ID de actividad, nombre y estado son campos obligatorios.');
+        if (!activityId || !name) {
+            throw new Error('El ID de actividad y nombre son campos obligatorios.');
+        }
+
+        let finalStatusId = statusId;
+        if (!finalStatusId) {
+            const currentAct = await global.global_db.exeQuery('SELECT status_id FROM public.assignment WHERE id = $1', [activityId]);
+            if (currentAct.length > 0) {
+                finalStatusId = currentAct[0].status_id;
+            } else {
+                finalStatusId = 'a666746d-1ebe-491c-acfc-e8fdcabaf958'; // default fallback
+            }
         }
 
         const sql = global.global_db.getSentence('business', 'updateActivity');
-        const rows = await global.global_db.exeQuery(sql, [name, statusId, activityId]);
+        const rows = await global.global_db.exeQuery(sql, [name, finalStatusId, activityId]);
         if (rows.length === 0) {
             throw new Error('Actividad no encontrada.');
         }

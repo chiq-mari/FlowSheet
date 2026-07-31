@@ -74,6 +74,18 @@
   color: #fca5a5;
 }
 
+.modal-tone-info .modal-header {
+  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.modal-tone-info .modal-header-icon-wrap {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.modal-tone-info .modal-header-icon {
+  color: #ffffff;
+}
+
 .modal-close-btn {
   width: 1.75rem;
   height: 1.75rem;

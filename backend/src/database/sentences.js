@@ -281,169 +281,6 @@ export const sentences = {
             ORDER BY n.date DESC, n.notification_time DESC;
         `
     },
-
-    // --- MÓDULO DE NEGOCIO (HOJAS DE TIEMPO) - PERFIL MIEMBRO ---
-    business: {
-        // Trae las actividades (assignments) asignadas al miembro autenticado ($1 = user_id),
-        // junto con su proyecto, rol y el último % de avance notificado (si existe)
-        getMemberAssignments: `
-            SELECT
-                ua.id AS user_assignment_id,
-                a.id AS assignment_id,
-                a.name AS assignment_name,
-                ast.status_de AS assignment_status,
-                pr.name AS proyect_role_name,
-                p.id AS proyect_id,
-                p.name AS proyect_name,
-                pst.status_de AS proyect_status,
-                COALESCE((
-                    SELECT n.progress_percentage
-                    FROM notification n
-                    WHERE n.user_assignment_id = ua.id
-                    ORDER BY n.date DESC, n.notification_time DESC
-                    LIMIT 1
-                ), 0) AS last_progress,
-                COALESCE((
-                    SELECT SUM(n.total_hours_spent)
-                    FROM notification n
-                    WHERE n.user_assignment_id = ua.id
-                ), 0) AS total_hours_logged
-            FROM user_assignment ua
-            INNER JOIN assignment a ON ua.assignment_id = a.id
-            INNER JOIN status ast ON a.status_id = ast.status_id
-            INNER JOIN proyect_role_user pru ON ua.proyect_role_user_id = pru.id
-            INNER JOIN proyect_role pr ON pru.proyect_role_id = pr.id
-            INNER JOIN proyect p ON pr.proyect_id = p.id
-            INNER JOIN status pst ON p.status_id = pst.status_id
-            WHERE pru.user_id = $1
-            ORDER BY p.name ASC, a.name ASC;
-        `,
-
-        // Verifica que una asignación ($1 = user_assignment_id) pertenezca realmente
-        // al usuario autenticado ($2 = user_id), para evitar que un miembro reporte
-        // avances sobre actividades de otro compañero
-        checkAssignmentOwnership: `
-            SELECT ua.id
-            FROM user_assignment ua
-            INNER JOIN proyect_role_user pru ON ua.proyect_role_user_id = pru.id
-            WHERE ua.id = $1 AND pru.user_id = $2;
-        `,
-
-        // Trae la hoja de tiempo (histórico de notificaciones de avance) del miembro autenticado ($1 = user_id)
-        getMemberNotifications: `
-            SELECT
-                n.id,
-                n.date,
-                n.notification_time,
-                n.progress_percentage,
-                n.total_hours_spent,
-                n.observation,
-                a.name AS assignment_name,
-                p.id AS proyect_id,
-                p.name AS proyect_name
-            FROM notification n
-            INNER JOIN user_assignment ua ON n.user_assignment_id = ua.id
-            INNER JOIN assignment a ON ua.assignment_id = a.id
-            INNER JOIN proyect_role_user pru ON ua.proyect_role_user_id = pru.id
-            INNER JOIN proyect_role pr ON pru.proyect_role_id = pr.id
-            INNER JOIN proyect p ON pr.proyect_id = p.id
-            WHERE pru.user_id = $1
-            ORDER BY n.date DESC, n.notification_time DESC;
-        `,
-
-        // Inserta un nuevo avance (notificación de hoja de tiempo) sobre una actividad asignada
-        // ($1 = user_assignment_id, $2 = date, $3 = progress_percentage, $4 = observation,
-        //  $5 = notification_time, $6 = total_hours_spent)
-        insertNotification: `
-            INSERT INTO notification (
-                user_assignment_id, date, progress_percentage, observation, notification_time, total_hours_spent
-            )
-            VALUES ($1, $2, $3, $4, $5, $6)
-            RETURNING id, user_assignment_id, date, notification_time, progress_percentage, total_hours_spent, observation;
-        `,
-
-        // --- Chat por proyecto ("Mis Chats") ---
-
-        // Chats (uno por proyecto) del usuario autenticado, con último mensaje y cantidad de miembros
-        getMemberChats: `
-            SELECT
-                p.id AS proyect_id,
-                p.name AS proyect_name,
-                mc.member_count,
-                lm.message_text AS last_message_text,
-                lm.sent_at AS last_message_at,
-                lm.user_id AS last_message_user_id,
-                lm.person_na AS last_message_person_na
-            FROM proyect p
-            INNER JOIN (
-                SELECT DISTINCT pr.proyect_id
-                FROM proyect_role pr
-                INNER JOIN proyect_role_user pru ON pr.id = pru.proyect_role_id
-                WHERE pru.user_id = $1
-            ) mine ON mine.proyect_id = p.id
-            LEFT JOIN LATERAL (
-                SELECT COUNT(DISTINCT pru2.user_id) AS member_count
-                FROM proyect_role pr2
-                INNER JOIN proyect_role_user pru2 ON pr2.id = pru2.proyect_role_id
-                WHERE pr2.proyect_id = p.id
-            ) mc ON true
-            LEFT JOIN LATERAL (
-                SELECT cm.message_text, cm.sent_at, cm.user_id, pe.person_na
-                FROM chat_message cm
-                INNER JOIN "user" u ON cm.user_id = u.user_id
-                INNER JOIN person pe ON u.person_id = pe.person_id
-                WHERE cm.proyect_id = p.id
-                ORDER BY cm.sent_at DESC
-                LIMIT 1
-            ) lm ON true
-            ORDER BY p.name ASC;
-        `,
-
-        // Verifica que el usuario pertenezca al proyecto (cualquier rol) antes de leer/escribir su chat
-        checkProyectMembership: `
-            SELECT 1
-            FROM proyect_role pr
-            INNER JOIN proyect_role_user pru ON pr.id = pru.proyect_role_id
-            WHERE pr.proyect_id = $1 AND pru.user_id = $2
-            LIMIT 1;
-        `,
-
-        // Miembros del proyecto (para el encabezado del chat: avatares + "N miembros")
-        getProyectMembers: `
-            SELECT DISTINCT u.user_id, u.user_na, pe.person_na, pe.person_ln
-            FROM proyect_role pr
-            INNER JOIN proyect_role_user pru ON pr.id = pru.proyect_role_id
-            INNER JOIN "user" u ON pru.user_id = u.user_id
-            INNER JOIN person pe ON u.person_id = pe.person_id
-            WHERE pr.proyect_id = $1
-            ORDER BY u.user_na ASC;
-        `,
-
-        // Historial de mensajes de un proyecto
-        getChatMessages: `
-            SELECT
-                cm.chat_message_id AS id,
-                cm.message_text,
-                cm.sent_at,
-                cm.user_id,
-                u.user_na,
-                pe.person_na,
-                pe.person_ln
-            FROM chat_message cm
-            INNER JOIN "user" u ON cm.user_id = u.user_id
-            INNER JOIN person pe ON u.person_id = pe.person_id
-            WHERE cm.proyect_id = $1
-            ORDER BY cm.sent_at ASC;
-        `,
-
-        // Inserta un mensaje nuevo en el chat de un proyecto
-        insertChatMessage: `
-            INSERT INTO chat_message (proyect_id, user_id, message_text)
-            VALUES ($1, $2, $3)
-            RETURNING chat_message_id AS id, proyect_id, user_id, message_text, sent_at;
-        `
-    }
-    ,
     person: {
     // 1. Obtener todas las personas con su Cargo (para la tabla principal)
     // Permite filtrar opcionalmente por nombre/apellido/CI/correo desde Node.js si se manda un término de búsqueda
@@ -1051,31 +888,57 @@ export const sentences = {
   },
 
   business: {
-    // --- Member queries (friend's database queries) ---
+    // --- Member queries ---
+    // Nota: enriquecida respecto a la versión original de main para incluir proyect_id,
+    // proyect_status, proyect_role_name, last_progress y total_hours_logged, que el
+    // frontend del Módulo Miembro (ProjectsTab/ActivitiesTab) requiere para agrupar
+    // correctamente las actividades por proyecto (sin esto, actividades de proyectos
+    // distintos se mezclaban bajo un mismo proyecto por tener proyect_id undefined).
     getMemberAssignments: `
-        SELECT 
+        SELECT
             ua.id AS user_assignment_id,
             a.id AS assignment_id,
             a.name AS assignment_name,
+            ast.status_de AS assignment_status,
+            pr.name AS proyect_role_name,
+            p.id AS proyect_id,
             p.name AS proyect_name,
-            pr.name AS role_name
+            pst.status_de AS proyect_status,
+            COALESCE((
+                SELECT n.progress_percentage
+                FROM public.notification n
+                WHERE n.user_assignment_id = ua.id
+                ORDER BY n.date DESC, n.notification_time DESC
+                LIMIT 1
+            ), 0) AS last_progress,
+            COALESCE((
+                SELECT SUM(n.total_hours_spent)
+                FROM public.notification n
+                WHERE n.user_assignment_id = ua.id
+            ), 0) AS total_hours_logged
         FROM public.user_assignment ua
         INNER JOIN public.assignment a ON ua.assignment_id = a.id
+        INNER JOIN public.status ast ON a.status_id = ast.status_id
         INNER JOIN public.proyect_role_user pru ON ua.proyect_role_user_id = pru.id
         INNER JOIN public.proyect_role pr ON pru.proyect_role_id = pr.id
         INNER JOIN public.proyect p ON pr.proyect_id = p.id
+        INNER JOIN public.status pst ON p.status_id = pst.status_id
         WHERE pru.user_id = $1
-        ORDER BY a.name ASC;
+        ORDER BY p.name ASC, a.name ASC;
     `,
+    // Nota: enriquecida respecto a la versión original de main para incluir proyect_id
+    // (mismo motivo que getMemberAssignments; MemberReports.jsx agrupa por proyect_id)
+    // y usar el alias "id" que espera MemberDashboard.jsx como key de lista.
     getMemberNotifications: `
-        SELECT 
-            n.id AS notification_id,
+        SELECT
+            n.id,
             n.date,
             n.notification_time,
             n.progress_percentage,
             n.total_hours_spent,
             n.observation,
             a.name AS assignment_name,
+            p.id AS proyect_id,
             p.name AS proyect_name
         FROM public.notification n
         INNER JOIN public.user_assignment ua ON n.user_assignment_id = ua.id
@@ -1098,6 +961,77 @@ export const sentences = {
         INSERT INTO public.notification (user_assignment_id, date, progress_percentage, observation, notification_time, total_hours_spent)
         VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING id, user_assignment_id, date, progress_percentage, observation, notification_time, total_hours_spent;
+    `,
+
+    // --- Chat por proyecto ("Mis Chats") --- (no existían en main; feature de sebastian)
+    getMemberChats: `
+        SELECT
+            p.id AS proyect_id,
+            p.name AS proyect_name,
+            mc.member_count,
+            lm.message_text AS last_message_text,
+            lm.sent_at AS last_message_at,
+            lm.user_id AS last_message_user_id,
+            lm.person_na AS last_message_person_na
+        FROM public.proyect p
+        INNER JOIN (
+            SELECT DISTINCT pr.proyect_id
+            FROM public.proyect_role pr
+            INNER JOIN public.proyect_role_user pru ON pr.id = pru.proyect_role_id
+            WHERE pru.user_id = $1
+        ) mine ON mine.proyect_id = p.id
+        LEFT JOIN LATERAL (
+            SELECT COUNT(DISTINCT pru2.user_id) AS member_count
+            FROM public.proyect_role pr2
+            INNER JOIN public.proyect_role_user pru2 ON pr2.id = pru2.proyect_role_id
+            WHERE pr2.proyect_id = p.id
+        ) mc ON true
+        LEFT JOIN LATERAL (
+            SELECT cm.message_text, cm.sent_at, cm.user_id, pe.person_na
+            FROM public.chat_message cm
+            INNER JOIN public."user" u ON cm.user_id = u.user_id
+            INNER JOIN public.person pe ON u.person_id = pe.person_id
+            WHERE cm.proyect_id = p.id
+            ORDER BY cm.sent_at DESC
+            LIMIT 1
+        ) lm ON true
+        ORDER BY p.name ASC;
+    `,
+    checkProyectMembership: `
+        SELECT 1
+        FROM public.proyect_role pr
+        INNER JOIN public.proyect_role_user pru ON pr.id = pru.proyect_role_id
+        WHERE pr.proyect_id = $1 AND pru.user_id = $2
+        LIMIT 1;
+    `,
+    getProyectMembers: `
+        SELECT DISTINCT u.user_id, u.user_na, pe.person_na, pe.person_ln
+        FROM public.proyect_role pr
+        INNER JOIN public.proyect_role_user pru ON pr.id = pru.proyect_role_id
+        INNER JOIN public."user" u ON pru.user_id = u.user_id
+        INNER JOIN public.person pe ON u.person_id = pe.person_id
+        WHERE pr.proyect_id = $1
+        ORDER BY u.user_na ASC;
+    `,
+    getChatMessages: `
+        SELECT
+            cm.chat_message_id AS id,
+            cm.message_text,
+            cm.sent_at,
+            cm.user_id,
+            u.user_na,
+            pe.person_na,
+            pe.person_ln
+        FROM public.chat_message cm
+        INNER JOIN public."user" u ON cm.user_id = u.user_id
+        INNER JOIN public.person pe ON u.person_id = pe.person_id
+        WHERE cm.proyect_id = $1
+        ORDER BY cm.sent_at ASC;
+    `,
+    insertChatMessage: `
+        INSERT INTO public.chat_message (proyect_id, user_id, message_text)
+        VALUES ($1, $2, $3)
+        RETURNING chat_message_id AS id, proyect_id, user_id, message_text, sent_at;
     `,
 
     // --- Leader activities management queries ---
